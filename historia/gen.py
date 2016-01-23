@@ -1,4 +1,5 @@
 from historia.time import Day, TimelineProperty
+from historia.map import WorldMap
 
 default_params = {
     'start_date': Day(1, 1, 1)
@@ -11,11 +12,16 @@ class Historia:
         Responsible for exporting the data
         and for making new days
     """
-    def __init__(self):
+    def __init__(self, map_data, params={}):
         self.params = default_params
         self.params.update(params)
+        for key, value in self.params.items():
+            setattr(self, key, value)
 
-        self.days = []
+        self.map = WorldMap(map_data)
+
+        # set the current_day
+        self.current_day = self.start_date
 
         # list of all countries that have ever existed
         self.countries = []
@@ -26,10 +32,16 @@ class Historia:
         # list of all languages that have ever existed
         self.languages = []
 
-        # set the current_day
-        self.current_day = self.params.start_date
+    def populate():
+        """
+            Populate the map with some initial data.
+            Make Countries,
+        """
 
     def step():
+        """
+            Start history
+        """
         self.current_day.next()
 
     def report():

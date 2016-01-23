@@ -40,6 +40,7 @@ class Day:
     def year(self, value):
         self._year = value
 
+    @property
     def stamp(self):
         return (self.day * 24) + (self.month * 720) + (self.year * 8640)
 
@@ -59,7 +60,7 @@ class Day:
         return self.day == other.day and self.month == other.month and self.year == other.year
 
     def __ne__(self, other):
-        return not self.__eq(other)
+        return not self.__eq__(other)
 
     def __key(self):
         return self.stamp
@@ -68,7 +69,7 @@ class Day:
         return hash(self.__key())
 
     def __str__(self):
-        return "<Calendar: type: {}, size: {}, id: {}>".format(self.type.title, self.size, self.id)
+        return "<Day: day={} month={} year={}>".format(self.day, self.month, self.year)
 
     def next():
         if self.day == 30:
@@ -97,10 +98,10 @@ class TimelineProperty:
 
     def get(self, get_day):
         """ Gets the value at a particular timeline day """
-        for day, value in timeline:
-            if day <= get_day:
+        for day, value in self.timeline:
+            if day >= get_day:
                 return value
-        return Exception('Day not found in timeline')
+        return self.timeline[-1][1]
 
     def set(self, day, value):
         """ Sets the value after this day """
