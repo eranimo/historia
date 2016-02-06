@@ -4,16 +4,16 @@ curl -O -L https://bitbucket.org/pypy/pypy/downloads/pypy-4.0.1-osx64.tar.bz2
 echo "Extracting pypy-4.0.1-osx64.tar.bs2..."
 tar -xf pypy-4.0.1-osx64.tar.bz2
 echo "Done extracting!"
-echo "Making pypy virtualenv at $PWD/pypy-numpy"
-virtualenv -p $PWD/pypy-4.0.1-osx64/bin/pypy pypy-numpy
-echo "Cloning pypy/numpy from bitbucket"
+echo "Making pypy virtualenv at $PWD/env ..."
+virtualenv -p $PWD/pypy-4.0.1-osx64/bin/pypy env
+echo "Cloning pypy/numpy from bitbucket..."
 git clone https://bitbucket.org/pypy/numpy.git
 cd numpy
-echo "Checkout version pypy 4.0.1 compatible version of pypy/numpy"
+echo "Checkout version pypy 4.0.1 compatible version of pypy/numpy..."
 git checkout pypy-4.0.1
-../pypy-numpy/bin/pypy setup.py install
+../env/bin/pypy setup.py install
 cd ..
-. ./pypy-numpy/bin/activate
+. ./env/bin/activate
 echo "All done installing! Now testing if it worked..."
 pypy -c 'import numpy'
 OUT=$?
