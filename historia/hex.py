@@ -1,4 +1,4 @@
-from historia.enums import HexEdge
+from historia.enums import HexEdge, HexType
 
 class Hex:
     """
@@ -38,6 +38,39 @@ class Hex:
             if e.get('is_coast'):
                 self.is_coast = True
 
+        self.county = None
+
+    @property
+    def owned(self):
+        """ Is this hex owned by a county? """
+        return self.county is not None
+
+    def type(self):
+        """ Return the type of the Hex """
+        if self.altitude < self.world_map.details.get('sea_level'):
+            return HexType.water
+        return HexType.land
+
+    @property
+    def is_land(self):
+        return self.type is HexType.land
+
+    @property
+    def is_water(self):
+        return self.type is HexType.water
+
+    @property
+    def settlement_score(self):
+        """
+            Hexes with a higher settlement score will be settled first.
+
+            Criteria for a higher score:
+                - rivers
+                - lots of water
+                - fertile land
+                - resources
+        """
+        return 0
 
     def __repr__(self):
         return "<Hex: x={} y={} altitude={}>".format(self.x, self.y, self.altitude)

@@ -7,3 +7,8 @@ class HexEdge(Enum):
     west       = 'West'
     south_west = 'South West'
     south_east = 'South East'
+
+
+class HexType(Enum):
+    water = 'Water'
+    land = 'Land'

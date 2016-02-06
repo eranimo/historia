@@ -3,6 +3,8 @@ import random
 from historia.time import Day, TimelineProperty
 from historia.country import Country
 from historia.map import WorldMap
+from historia.log import HistoryLogger, LogEvent
+from historia.enums import HexType
 
 default_params = {
     'start_date': Day(1, 1, 1),
@@ -36,6 +38,8 @@ class Historia(object):
         # list of all languages that have ever existed
         self.languages = []
 
+        self.logger = HistoryLogger()
+
         self._populate()
 
     def start(self):
@@ -56,8 +60,9 @@ class Historia(object):
         """
         num_initial_countries = random.randint(5, 10)
         for i in xrange(num_initial_countries):
-            h = self.map.random_hex()
-            Country(self, initial_territory=[h])
+            h = self.map.random_hex(type=HexType.land)
+            country = Country(self, initial_territory=[h])
+            self.countries.append(country)
 
     def report(self, ):
         """

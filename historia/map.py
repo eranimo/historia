@@ -1,5 +1,6 @@
-from historia.hex import Hex
+import random
 
+from historia.hex import Hex
 
 class HexNotFoundException(Exception):
     pass
@@ -23,3 +24,10 @@ class WorldMap:
             if h.x == x and h.y == y:
                 return h
         raise HexNotFoundException('Could not find hex at {}, {}'.format(x, y))
+
+    def random_hex(self, type=None):
+        found = random.choice(self.hexes)
+        if type is not None:
+            while found.type is type:
+                found = random.choice(self.hexes)
+        return found
