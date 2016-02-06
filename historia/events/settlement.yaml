@@ -1,0 +1,10 @@
+-
+    name: Settle neighboring hex
+    requirements:
+        any_neighbor_hex:
+            owner: null
+        num_settlers:
+
+    effects:
+        settle_hex()
+-

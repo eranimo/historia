@@ -1,13 +1,32 @@
-class CalendarError(Exception):
-    pass
+from historia.errors import CalendarError
 
-class Day:
+DAYS_IN_MONTH = 30
+MONTHS_IN_YEAR = 12
+
+MONTH_NAMES = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+]
+ordinal = lambda n: "%d%s" % (n,"tsnrhtdd"[(n/10%10!=1)*(n%10<4)*n%10::4])
+
+
+class Day(object):
     def __init__(self, day, month, year):
-        if 1 <= day <= 30:
+        if 1 <= day <= DAYS_IN_MONTH:
             self._day = day
         else:
             raise CalendarError('Days must be between 0 and 30')
-        if 1 <= month <= 12:
+        if 1 <= month <= MONTHS_IN_YEAR:
             self._month = month
         else:
             raise CalendarError('Months must be between 0 and 12')
@@ -15,6 +34,48 @@ class Day:
             self._year = year
         else:
             raise CalendarError('Years must be positive')
+
+    def display(self):
+        return '%s %s, year %s' % (MONTH_NAMES[self.month - 1], ordinal(self.day), self.year)
+
+    def add(self, days=None, months=None, years=None):
+        if days is not None:
+            if days >= DAYS_IN_MONTH:
+                self.day = days % DAYS_IN_MONTH + 1
+                m = days // DAYS_IN_MONTH
+                if m >= MONTHS_IN_YEAR:
+                    self.month = m % MONTHS_IN_YEAR + 1
+                    self.year += m // MONTHS_IN_YEAR
+                else:
+                    self.month += m
+            else:
+                self.day += days
+        if months is not None:
+            if months >= MONTHS_IN_YEAR:
+                self.month = months % MONTHS_IN_YEAR + 1
+                self.year += months // MONTHS_IN_YEAR
+            else:
+                self.month += months
+        if years is not None:
+            self.year += years
+        return self
+
+    # def subtract(self, days=None, months=None, years=None):
+    #     if days is not None:
+    #         if self.day - days <= 1:
+    #             if self.month <= 1:
+    #                 self.day = DAYS_IN_MONTH - days
+    #                 self.month = MONTHS_IN_YEAR - 1
+    #                 self.year -= 1
+    #     if months is not None:
+    #         if months - self.months < 1:
+    #
+    #     if years is not None:
+    #         if self.year < 1:
+    #             raise CalendarError()
+    #         else:
+    #             self.year -= years
+    #     return self
 
     @property
     def day(self):
@@ -44,6 +105,10 @@ class Day:
     def stamp(self):
         return (self.day * 24) + (self.month * 720) + (self.year * 8640)
 
+    def __add__(self, amount):
+        self.day += amount
+        return self
+
     def __lt__(self, other):
         return self.stamp < other.stamp
 
@@ -62,24 +127,20 @@ class Day:
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __key(self):
+    def __key__(self):
         return self.stamp
 
     def __hash__(self):
-        return hash(self.__key())
+        return hash(self.__key__())
 
     def __str__(self):
         return "<Day: day={} month={} year={}>".format(self.day, self.month, self.year)
 
-    def next():
-        if self.day == 30:
-            self.day = 1
-            if self.month == 12:
-                self.month = 1
-            else:
-                self.month += 1
+    def __repr__(self):
+        return self.__str__()
 
-class TimelineProperty:
+
+class TimelineProperty(object):
     """
         A property that changes when the program's current_day changes.
         Allows a property to change over time
@@ -105,4 +166,7 @@ class TimelineProperty:
 
     def set(self, day, value):
         """ Sets the value after this day """
-        self.timeline.append((day, value))
+        if type(day) is Day:
+            self.timeline.append((day, value))
+        else:
+            raise TypeError('day must be an instance of Day')
