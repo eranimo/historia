@@ -51,6 +51,10 @@ class TestDay(TestCase):
         self.assertEqual(Day(3, 12, 1).display(), 'December 3rd, year 1')
         self.assertEqual(Day(2, 2, 100).display(), 'February 2nd, year 100')
 
+    def test_diff(self):
+        self.assertEqual(Day(2, 1, 1).diff(Day(1, 1, 1)), dict(days=1, months=0, years=0))
+        self.assertEqual(Day(1, 5, 1).diff(Day(1, 2, 1)), dict(days=0, months=3, years=0))
+
     # def test_day_subtract(self):
     #     """ Test day subtraction """
     #     self.assertEqual(Day(10, 1, 1).subtract(days=1), Day(9, 1, 1))

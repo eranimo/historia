@@ -38,12 +38,12 @@ class Hex:
             if e.get('is_coast'):
                 self.is_coast = True
 
-        self.county = None
+        self.owner = None
 
     @property
     def owned(self):
-        """ Is this hex owned by a county? """
-        return self.county is not None
+        """ Is this hex owned by a second-level political unit? """
+        return self.owner is not None
 
     def type(self):
         """ Return the type of the Hex """

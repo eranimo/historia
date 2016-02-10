@@ -77,6 +77,13 @@ class Day(object):
     #             self.year -= years
     #     return self
 
+    def diff(self, other):
+        if self > other:
+            inst = self - other
+        else:
+            inst = other - self
+        return dict(days=inst.day, months=inst.month, years=inst.years)
+
     @property
     def day(self):
         return self._day

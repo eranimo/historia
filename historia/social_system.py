@@ -21,8 +21,10 @@ class SocialSystem:
 
     variation_class = None
 
-    def __init__(self, name, parent=None):
+    def __init__(self, manager, name, parent=None):
         self.name = name
+
+        self.manager = manager
 
         self.id = uuid4().hex
 

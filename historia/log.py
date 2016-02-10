@@ -1,14 +1,14 @@
 from enum import Enum
 
 class LogEvent(Enum):
-    info: 'Simulation info'
+    info = 'Simulation info'
     settlement = 'County settlement'
 
 class HistoryLogger(object):
 
     def __init__(self, manager):
         self.items = []
-        self.manager
+        self.manager = manager
 
     def log(self, message, context, event=None):
         """
