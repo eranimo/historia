@@ -1,2 +1,2 @@
 from historia.gen import Historia
-from historia.time import Day, TimelineProperty, CalendarError
+from historia.time import TimelineProperty

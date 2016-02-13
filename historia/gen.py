@@ -1,14 +1,15 @@
 import random
 import time
+import arrow
 
-from historia.time import Day, TimelineProperty
+from historia.time import TimelineProperty
 from historia.country import Country
 from historia.map import WorldMap
 from historia.log import HistoryLogger, LogEvent
 from historia.enums import HexType
 
 default_params = {
-    'start_date': Day(1, 1, 1),
+    'start_date': arrow.get(1, 1, 1),
     'run_years': 1
 }
 
@@ -28,7 +29,7 @@ class Historia(object):
 
         # set the current_day
         self.current_day = self.start_date
-        self.end_day = self.start_date.add(years=self.run_years)
+        self.end_day = self.start_date.replace(years=+self.run_years)
 
         # list of all countries that have ever existed
         self.countries = []
@@ -51,9 +52,8 @@ class Historia(object):
         - check to see if any can run events, run those events
         """
         while self.current_day <= self.end_day:
-            print('Current day: %s' % self.current_day)
-            time.sleep(5)
-            self.current_day.add(days=1)
+            self.current_day = self.current_day.replace(days=+1)
+            print('Current day: %s' % self.current_day.format('dddd, MMMM, DD YYYY'))
 
     def _populate(self, ):
         """
@@ -63,7 +63,7 @@ class Historia(object):
         num_initial_countries = random.randint(5, 10)
         for i in xrange(num_initial_countries):
             h = self.map.random_hex(type=HexType.land)
-            country = Country(self, initial_hex=h)
+            country = Country(self, h)
             self.countries.append(country)
 
     def report(self, ):

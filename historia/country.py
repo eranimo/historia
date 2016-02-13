@@ -52,9 +52,8 @@ class PoliticalUnit(object):
     """
     Base class for Country, Primary and Secondary divisions
     """
-    pass
-    # def __init__(self):
-    #     self.id = uuid4().hex
+    def __init__(self):
+        self.id = uuid4().hex
     #     self._name_timeline = []
     #     self._name = TimelineProperty(manager, self._name_timeline)
     #
@@ -94,7 +93,7 @@ class PrimaryDivision(PoliticalUnit):
         super(self.__class__, self).__init__()
         self.manager = manager
 
-        self.capital = capital # capital province?
+        self.capital = initial # capital province?
         self.divisions = [initial]
 
         if province_type is None:

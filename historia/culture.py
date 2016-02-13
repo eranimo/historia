@@ -10,7 +10,19 @@ class CultureVariant(SocialSystemVariant):
 
 class Culture(SocialSystem):
     """
-    Culture
+    Culture.
+
+    Considerations that go into making up a Culture:
+    - language
+    - history
+    - food
+    - shelter
+    - education
+    - security
+    - relationships
+    - political and social organizations
+    - religions
+    - art
 
     e.g. Chinese
     """
