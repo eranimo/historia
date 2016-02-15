@@ -1,1 +1,1 @@
-from historia.test.test_time import TestDay
+from historia.test.test_person import TestPerson
