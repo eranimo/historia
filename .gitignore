@@ -3,3 +3,4 @@ env/
 dist/
 *.pyc
 build/
+historia.egg-info

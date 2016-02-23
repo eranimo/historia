@@ -86,7 +86,32 @@ class Historia(object):
         pass
 
     def export(self, file_path):
-        """ Export the data to JSON """
-        with open(newfile, 'w') as outfile:
-            json.dumps()
+        """
+            Export the data to JSON
+
+            # Structure
+            {
+                map_data: object, # map data like size and Hexgen options
+                hexes: [Hex, ...], # all hexes on map
+                data: { # DB of entities that have existed
+                    countries: [Country, ...]
+                    cultures: [Culture, ...]
+                    religions: [Religion, ...]
+                },
+                timeline: [ # changes to those entities
+                    {
+                        'day': DateTime
+                        'event': TimelineEvent object,
+                        'entity_name': String,
+                        'entity_id': Integer
+                    }
+                ]
+            }
+
+
+
+
+        """
+        # with open(newfile, 'w') as outfile:
+        #     json.dumps()
         pass
