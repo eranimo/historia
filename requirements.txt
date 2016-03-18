@@ -2,3 +2,6 @@ colored
 Pillow
 enum34
 arrow
+autopep8
+colorama
+statistics

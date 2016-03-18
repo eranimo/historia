@@ -4,15 +4,22 @@ import arrow
 
 from historia.time import TimelineProperty
 from historia.country import Country
-from historia.pops import Pop
+from historia.pops import Pop, make_random_pop
 from historia.map import WorldMap
 from historia.log import HistoryLogger, LogEvent
 from historia.enums import HexType
 
+from termcolor import colored
+
 default_params = {
     'start_date': arrow.get(1, 1, 1),
-    'run_years': 10
+    'run_months': 1
 }
+
+from pprint import PrettyPrinter
+
+pp = PrettyPrinter(indent=4)
+echo = pp.pprint
 
 class Historia(object):
     """
@@ -30,7 +37,7 @@ class Historia(object):
 
         # set the current_day
         self.current_day = self.start_date
-        self.end_day = self.start_date.replace(years=+self.run_years)
+        self.end_day = self.start_date.replace(months=+self.run_months)
 
         # list of all countries that have ever existed
         self.countries = []
@@ -59,31 +66,48 @@ class Historia(object):
         - loop over pops
         """
         while self.current_day <= self.end_day:
-
-            if self.current_day.day == 1:
-                print("{}".format(
-                    self.current_day.format('MMMM YYYY')
-                ))
-
+            date = '{}'.format(self.current_day.format('dddd MMMM D, YYYY'))
+            print('→ {}:'.format(colored(date, 'blue', attrs=['bold', 'underline'])))
             self.current_day = self.current_day.replace(days=+1)
 
 
-    def _populate(self, ):
+    def _populate(self):
         """
             Populate the map with some initial data.
+            Make between 5 and 10 random countries owning one hex
+            Make random pops for each country
         """
 
-        num_initial_countries = random.randint(5, 10)
-        for i in xrange(num_initial_countries):
-            h = self.map.random_hex(type=HexType.land)
-            country = Country(self, h)
-            self.countries.append(country)
+        # find a suitable hex
+        favorable_hexes = sorted(self.map.hexes, key=lambda h: h.favorability, reverse=True)
+        start_hex = favorable_hexes[0]
 
-    def report(self, ):
-        """
-            Report everything that happened on the current day
-        """
-        pass
+        # create a province and country
+        start_country = Country(self, start_hex)
+        self.countries.append(start_country)
+
+        # Give that province pops and RGOs
+        province = start_country.provinces[0]
+        pops = []
+        a1 = make_random_pop(province, PopType.aristocrat)
+        f1 = make_random_pop(province, PopType.farmer)
+        f2 = make_random_pop(province, PopType.farmer)
+
+        a2 = make_random_pop(province, PopType.aristocrat)
+        l1 = make_random_pop(province, PopType.laborer)
+        l2 = make_random_pop(province, PopType.laborer)
+
+        c1 = make_random_pop(province, PopType.craftsman)
+        c2 = make_random_pop(province, PopType.craftsman)
+
+
+
+        print('Hex: {}'.format(start_hex))
+        print('Country: {}'.format(start_country))
+        print(colored('Pops:', 'blue'))
+        echo(start_country.pops)
+
+
 
     def export(self, file_path):
         """

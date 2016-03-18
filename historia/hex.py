@@ -1,4 +1,5 @@
 from historia.enums import HexEdge, HexType
+from historia.world.biome import Biome
 
 class Hex:
     """
@@ -13,6 +14,8 @@ class Hex:
         self.altitude = data.get('altitude')
 
         edges = data.get('edges')
+
+        self.biome = Biome[data.get('biome').get('name')]
 
         self.edge_east = edges.get('east')
         self.edge_north_east = edges.get('north_east')
@@ -60,7 +63,7 @@ class Hex:
         return self.type is HexType.water
 
     @property
-    def settlement_score(self):
+    def favorability(self):
         """
             Hexes with a higher settlement score will be settled first.
 
@@ -70,7 +73,15 @@ class Hex:
                 - fertile land
                 - resources
         """
-        return 0
+        if self.is_water:
+            return 0
+        score = 0
+        if self.is_coast:
+            score += 30
+        if self.has_river:
+            score += 80
+        score += self.biome.base_favorability
+        return score
 
     def __repr__(self):
         return "<Hex: x={} y={} altitude={}>".format(self.x, self.y, self.altitude)
@@ -78,11 +89,11 @@ class Hex:
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 
-    def __key(self):
+    def __key__(self):
         return self.x, self.y
 
     def __hash__(self):
-        return hash(self.__key())
+        return hash(self.__key__())
 
     @property
     def hex_east(self):

@@ -1,4 +1,5 @@
 from enum import Enum
+from historia.enums.dict_enum import DictEnum
 
 class HexEdge(Enum):
     east       = 'East'

@@ -1,8 +1,8 @@
 from unittest import TestCase
-from collections import namedtuple
 
 from historia.condition import All, Any
 
+from collections import namedtuple
 test_scope = namedtuple('test_scope', 'a, b, c, d')
 
 

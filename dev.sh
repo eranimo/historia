@@ -1,1 +1,1 @@
-source ./env/bin/activate
+. ./env/bin/activate
