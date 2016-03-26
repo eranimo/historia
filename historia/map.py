@@ -31,3 +31,9 @@ class WorldMap:
             while found.type is type:
                 found = random.choice(self.hexes)
         return found
+
+    def export(self):
+        hexes = [[None for y in range(self.size)] for x in range(self.size)]
+        for h in self.hexes:
+            hexes[h.x][h.y] = h.export()
+        return hexes

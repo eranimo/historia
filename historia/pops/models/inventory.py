@@ -43,20 +43,20 @@ class NoInventorySpaceException(Exception):
 
 class Inventory(object):
     """
-    An inventory is a dict of Resource keys to namedtuple values.
+    An inventory is a dict of Good keys to namedtuple values.
     This dict has the following values:
     - amount (int)          The amount of the given resource in the inventory
     - price (int, None)     The price of the good when it was purchased. None if produced
 
     Parameters:
-    - size (int)            Max # units for each Resource
+    - size (int)            Max # units for each Good
     """
     def __init__(self, size):
         self.inventory = {}
         self.size = size
 
     def has_item(self, resource):
-        "Returns True if the Inventory has a Resource"
+        "Returns True if the Inventory has a Good"
         try:
             self.inventory[resource]
             return True

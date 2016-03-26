@@ -1,12 +1,15 @@
 import random
 import time
 import arrow
+import json
 
 from historia.time import TimelineProperty
 from historia.country import Country
-from historia.pops import Pop, make_random_pop
+from historia.pops import Pop, make_random_pop, PopType
+from historia.economy import make_RGOs, RGOType, Good
 from historia.map import WorldMap
-from historia.log import HistoryLogger, LogEvent
+from historia.world import give_hex_natural_resources
+from historia.log import HistoryLogger
 from historia.enums import HexType
 
 from termcolor import colored
@@ -34,6 +37,7 @@ class Historia(object):
             setattr(self, key, value)
 
         self.map = WorldMap(map_data)
+        self.map_data = map_data
 
         # set the current_day
         self.current_day = self.start_date
@@ -80,18 +84,27 @@ class Historia(object):
 
         # find a suitable hex
         favorable_hexes = sorted(self.map.hexes, key=lambda h: h.favorability, reverse=True)
-        start_hex = favorable_hexes[0]
+        start_hex = favorable_hexes[1]
+
+        # give the hex some natural resources
+        give_hex_natural_resources(start_hex)
+        print('Hex natural resources:')
+        echo(start_hex.natural_resources)
 
         # create a province and country
         start_country = Country(self, start_hex)
+        start_country.name = 'Elysium'
         self.countries.append(start_country)
 
         # Give that province pops and RGOs
         province = start_country.provinces[0]
         pops = []
+
         a1 = make_random_pop(province, PopType.aristocrat)
         f1 = make_random_pop(province, PopType.farmer)
+        #make_RGOs(province, RGOType.grain_farm, a1, f1)
         f2 = make_random_pop(province, PopType.farmer)
+
 
         a2 = make_random_pop(province, PopType.aristocrat)
         l1 = make_random_pop(province, PopType.laborer)
@@ -100,42 +113,32 @@ class Historia(object):
         c1 = make_random_pop(province, PopType.craftsman)
         c2 = make_random_pop(province, PopType.craftsman)
 
-
+        province.add_pops([a1, f1, f2, a2, l1, l2, c1, c2])
 
         print('Hex: {}'.format(start_hex))
         print('Country: {}'.format(start_country))
         print(colored('Pops:', 'blue'))
-        echo(start_country.pops)
+        echo(province.pops)
 
 
 
-    def export(self, file_path):
-        """
-            Export the data to JSON
-
-            # Structure
-            {
-                map_data: object, # map data like size and Hexgen options
-                hexes: [Hex, ...], # all hexes on map
-                data: { # DB of entities that have existed
-                    countries: [Country, ...]
-                    cultures: [Culture, ...]
-                    religions: [Religion, ...]
+    def export(self, output_file):
+        "Export the data to JSON"
+        with open(output_file, 'w') as outfile:
+            data = {
+                'details': self.map_data.get('details'),
+                'geoforms': self.map_data.get('geoforms'),
+                'hexes': self.map.export(),
+                'enums': {
+                    'PopType': PopType.ref_map(),
+                    'Good': Good.ref_map(),
+                    'RGOType': RGOType.ref_map()
                 },
-                timeline: [ # changes to those entities
-                    {
-                        'day': DateTime
-                        'event': TimelineEvent object,
-                        'entity_name': String,
-                        'entity_id': Integer
-                    }
-                ]
+                'data': {
+                    'Country': {c.id: c.export() for c in self.countries},
+                    'Province': {p.id: p.export() for c in self.countries for p in c.provinces},
+                    'Pop': {p.id: p.export() for c in self.countries for p in c.pops}
+                },
+                'timeline': self.logger.export()
             }
-
-
-
-
-        """
-        # with open(newfile, 'w') as outfile:
-        #     json.dumps()
-        pass
+            json.dump(data, outfile, indent=2)

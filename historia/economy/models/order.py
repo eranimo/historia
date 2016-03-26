@@ -9,7 +9,7 @@ class Order(object):
     - pop (Pop)   The pop who made this order
     - order_type (OrderType)  The type of order this is
     - resource (ResourceType) What resource this order is for
-    - quantity (float)    The amount of Resource this order is for
+    - quantity (float)    The amount of Good this order is for
     - price (float)   How much the order is
     """
 

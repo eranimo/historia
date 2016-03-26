@@ -5,3 +5,5 @@ arrow
 autopep8
 colorama
 statistics
+colour
+ujson

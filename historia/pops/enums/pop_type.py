@@ -2,23 +2,26 @@ from uuid import uuid4
 from enum import Enum
 
 from historia.enums.dict_enum import DictEnum
-from historia.economy.enums.resource import Resource
+from historia.economy.enums.resource import Good
 
 
 basic_needs = [
-    (Resource.fish, 0.5),
-    (Resource.fruit, 1.5),
-    (Resource.vegetable, 1.5),
-    (Resource.grain, 2.0)
+    (Good.fish, 0.5),
+    (Good.fruit, 1.5),
+    (Good.vegetable, 1.5),
+    (Good.grain, 2.0)
 ]
+
+class TestEnum(DictEnum):
+    foo = { 'title': 'foo '}
 
 
 class PopType(DictEnum):
     """
     title: the title of this Pop Type
-    basic_needs: Resource for staying alive
-    daily_needs: Resource that are not required for survival, but required to be productive
-    luxury_needs: Resource required in order to be happy
+    basic_needs: Good for staying alive
+    daily_needs: Good that are not required for survival, but required to be productive
+    luxury_needs: Good required in order to be happy
 
     rgo_worker: whether or not this pop type can work in an EGO
 
@@ -31,11 +34,13 @@ class PopType(DictEnum):
     # get income from portion of RGO's income
     farmer = {
         'title': 'Farmer',
+        'foo': [TestEnum.foo],
+        'bar': TestEnum.foo,
         'basic_needs': basic_needs,
         'daily_needs': [
-            (Resource.tea, 2.5),
-            (Resource.alcohol, 5.0),
-            (Resource.clothes, 1.0)
+            (Good.tea, 2.5),
+            (Good.alcohol, 5.0),
+            (Good.clothes, 1.0)
         ],
         'rgo_worker': True
     }
@@ -45,9 +50,9 @@ class PopType(DictEnum):
         'title': 'Miner',
         'basic_needs': basic_needs,
         'daily_needs': [
-            (Resource.tea, 2.5),
-            (Resource.alcohol, 5.0),
-            (Resource.clothes, 1.0)
+            (Good.tea, 2.5),
+            (Good.alcohol, 5.0),
+            (Good.clothes, 1.0)
         ],
         'rgo_worker': True
     }
@@ -58,9 +63,9 @@ class PopType(DictEnum):
         'title': 'Craftsman',
         'basic_needs': basic_needs,
         'daily_needs': [
-            (Resource.tea, 5.0),
-            (Resource.alcohol, 3.0),
-            (Resource.clothes, 1.0)
+            (Good.tea, 5.0),
+            (Good.alcohol, 3.0),
+            (Good.clothes, 1.0)
         ]
     }
     # Aristocrats own RGOs
@@ -69,10 +74,10 @@ class PopType(DictEnum):
         'title': 'Aristocrat',
         'basic_needs': basic_needs,
         'daily_needs': [
-            (Resource.tea, 5.0),
-            (Resource.alcohol, 5.0),
-            (Resource.clothes, 2.0),
-            (Resource.furnature, 0.1)
+            (Good.tea, 5.0),
+            (Good.alcohol, 5.0),
+            (Good.clothes, 2.0),
+            (Good.furnature, 0.1)
         ],
         'rgo_worker': True,
         'rgo_owner': True
@@ -82,9 +87,9 @@ class PopType(DictEnum):
         'title': 'Soldier',
         'basic_needs': basic_needs,
         'daily_needs': [
-            (Resource.tea, 2.5),
-            (Resource.alcohol, 5.0),
-            (Resource.clothes, 1.0)
+            (Good.tea, 2.5),
+            (Good.alcohol, 5.0),
+            (Good.clothes, 1.0)
         ],
         'rgo_worker': True,
         'rgo_owner': True
@@ -97,10 +102,10 @@ class PopType(DictEnum):
         'title': 'Merchant',
         'basic_needs': basic_needs,
         'daily_needs': [
-            (Resource.tea, 4.0),
-            (Resource.alcohol, 4.0),
-            (Resource.clothes, 1.5),
-            (Resource.furnature, 0.1)
+            (Good.tea, 4.0),
+            (Good.alcohol, 4.0),
+            (Good.clothes, 1.5),
+            (Good.furnature, 0.1)
         ]
     }
     # TODO: add factoryworker, and officeworker pop types

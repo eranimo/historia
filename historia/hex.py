@@ -1,5 +1,6 @@
 from historia.enums import HexEdge, HexType
 from historia.world.biome import Biome
+from historia.utils import unique_id
 
 class Hex:
     """
@@ -8,12 +9,14 @@ class Hex:
         Modified version from Hexgen
     """
     def __init__(self, world_map, data):
+        self.id = unique_id('he')
         self.world_map = world_map
         self.x = data.get('x')
         self.y = data.get('y')
         self.altitude = data.get('altitude')
 
         edges = data.get('edges')
+        self.map_data = data
 
         self.biome = Biome[data.get('biome').get('name')]
 
@@ -42,6 +45,8 @@ class Hex:
                 self.is_coast = True
 
         self.owner = None
+
+        self.natural_resources = []
 
     @property
     def owned(self):
@@ -84,7 +89,7 @@ class Hex:
         return score
 
     def __repr__(self):
-        return "<Hex: x={} y={} altitude={}>".format(self.x, self.y, self.altitude)
+        return "<Hex: x={} y={} altitude={} biome={}>".format(self.x, self.y, self.altitude, self.biome.title)
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
@@ -178,3 +183,16 @@ class Hex:
                 (self.hex_north_east, HexEdge.north_east),
             ]
             return self._neighbors
+
+    @property
+    def coords(self):
+        return {
+            'x': self.x,
+            'y': self.y
+        }
+
+    def export(self):
+        "Export Hex data as dict"
+        data = self.map_data
+        data['natural_resources'] = [r.name for r in self.natural_resources]
+        return data

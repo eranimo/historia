@@ -42,7 +42,7 @@ class Market(object):
         for pop in self.location.pops:
             pop.perform_production()
             pop.generate_offers()
-        # resolve all offers for each Resource
+        # resolve all offers for each Good
         for pop in self.location.pops:
             if pop.money < 0:
                 pop.bankrupt = True

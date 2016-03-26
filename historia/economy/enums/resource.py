@@ -2,11 +2,11 @@ from enum import Enum
 
 from historia.enums.dict_enum import DictEnum
 
-# TODO: rename to Good
-class Resource(DictEnum):
-
+class Good(DictEnum):
+    "A physical commodity consumed by Pops"
     # Raw
     grain = { 'title': 'Grain' }
+    meat = { 'title': 'Meat'}
     fish = { 'title': 'Fish' }
     fruit = { 'title': 'Fruit' }
     vegetable = { 'title': 'Vegetable' }
@@ -23,68 +23,76 @@ class Resource(DictEnum):
     clothes = { 'title': 'Clothes' }
     fabric = { 'title': 'Fabric' }
     furnature = { 'title': 'Furnature' }
+    charcoal = { 'title': 'Charcoal' }
 
 
 class NaturalResource(Enum):
-    iron
-    fish
-    cotton
-    timber
+    iron = {'good': Good.iron}
+    fish = {'good': Good.fish}
+    trees = {'good': Good.timber}
 
 class PlantedResources(Enum):
     grains = {'good': Good.grain}
     fruit = {'good': Good.fruit}
-    vegetable = {'good': Good.vegetable}
-    tea_plant = {'good': Good.tea}
+    vegetable_plants = {'good': Good.vegetable}
     sheep = {'good': Good.wool}
-    cotton_plant = {'good': Good.cotton}
+    cattle = {'good': Good.meat}
+    tea_plants = {'good': Good.tea}
+    cotton_plants = {'good': Good.cotton}
 
 
-# production tree for producing Resource
+# production tree for producing Good
 # for input, 1st level list items are ALL,
 #            2nd level list items are OR
+# TODO: these need to be tweaked
 production_tree = {
-    Resource.bread: {
+    Good.bread: {
         'input': [
-            (Resource.grain, 2)
+            (Good.grain, 2)
         ],
         'output': 2
     },
-    Resource.lumber: {
+    Good.lumber: {
         'input': [
-            (Resource.timber, 100)
+            (Good.timber, 100)
         ],
         'output': 100
     },
-    Resource.alcohol: {
+    Good.alcohol: {
         'input': [
             [
-                (Resource.grain, 100),
-                (Resource.fruit, 100)
+                (Good.grain, 100),
+                (Good.fruit, 100)
             ]
         ],
         'output': 10
     },
-    Resource.fabric: {
+    Good.fabric: {
         'input': [
-            (Resource.cotton, 10)
+            (Good.cotton, 10)
         ],
         'output': 5
     },
-    Resource.clothes: {
+    Good.clothes: {
         'input': [
-            (Resource.fabric, 10),
+            (Good.fabric, 10),
         ],
         'output': 5
     },
-    Resource.furnature: {
+    Good.furnature: {
         'input': [
-            (Resource.lumber, 10),
+            (Good.lumber, 10),
         ],
         'output': 1
+    },
+    Good.charcoal: {
+        'input': [
+            (Good.timber, 10),
+        ],
+        'output': 5
     }
 }
 
-# TODO: implement the following Resource
+# TODO: implement the following Good
 # - jackets (wool)
 # - luxury clothes (silk, wool, clothes)

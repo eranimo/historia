@@ -1,6 +1,7 @@
-from uuid import uuid4
+from historia.utils import unique_id
 from historia.country.enums import PrimaryDivisionTypes, GovernmentType, GovernmentStructure
 from historia.economy.models import Market
+from historia.log import LogAction
 
 
 class Province(object):
@@ -10,12 +11,13 @@ class Province(object):
         - population
     """
 
-    def __init__(self, manager, location, is_capital):
+    def __init__(self, manager, location, owner, is_capital=False):
         super(self.__class__, self).__init__()
         self.manager = manager
-        self.id = uuid4().hex
+        self.id = unique_id('pr')
 
         self.hex = location
+        self.owner = owner
         self.hex.owner = self
         self.is_capital = is_capital
 
@@ -23,6 +25,17 @@ class Province(object):
         self.market = Market(self.manager, self)
         self.pops = []
         self.RGOs = []
+
+        self.manager.logger.log(self, {
+            'owner': owner.id
+        })
+
+    def add_pops(self, pops):
+        "Add pops from a list."
+        self.pops.extend(pops)
+        self.manager.logger.log(self, {
+            'pops': [p.id for p in pops]
+        }, LogAction.extend)
 
     @property
     def neighbors(self):
@@ -50,3 +63,10 @@ class Province(object):
     @property
     def has_river(self):
         return self.hex.has_river
+
+    def export(self):
+        return {
+            'hex': self.hex.coords,
+            'pops': [],
+            'rgos': []
+        }

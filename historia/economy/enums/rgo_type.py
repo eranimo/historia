@@ -1,7 +1,7 @@
 from enum import Enum
 
 from historia.enums.dict_enum import DictEnum
-from historia.economy.enums import Resource
+from historia.economy.enums import Good
 from historia.pops.enums.pop_type import PopType
 
 class RGOType(DictEnum):
@@ -12,51 +12,58 @@ class RGOType(DictEnum):
 
     fish_farm = {
         'title': 'Fish Farm',
-        'type': Resource.fish,
+        'good': Good.fish,
+        'base_production': 10,
+        'worker_type': PopType.farmer
+    }
+
+    cattle_farm = {
+        'title': 'Cattle Farm',
+        'good': Good.meat,
         'base_production': 10,
         'worker_type': PopType.farmer
     }
 
     grain_farm = {
         'title': 'Farm',
-        'type': Resource.grain,
+        'good': Good.grain,
         'base_production': 10,
         'worker_type': PopType.farmer
     }
 
     fruit_farm = {
         'title': 'Fruit Farm',
-        'type': Resource.fruit,
+        'good': Good.fruit,
         'base_production': 100,
         'worker_type': PopType.farmer
     }
     vegetable_farm = {
         'title': 'Vegetable Farm',
-        'type': Resource.vegetable,
+        'good': Good.vegetable,
         'base_production': 100,
         'worker_type': PopType.farmer
     }
     iron_mine = {
         'title': 'Iron Mine',
-        'type': Resource.iron,
+        'good': Good.iron,
         'base_production': 50,
         'worker_type': PopType.laborer
     }
     timber_lodge = {
         'title': 'Timber Lodge',
-        'type': Resource.timber,
+        'good': Good.timber,
         'base_production': 100,
         'worker_type': PopType.laborer
     }
     sheep_ranch = {
         'title': 'Sheep Ranch',
-        'type': Resource.wool,
+        'good': Good.wool,
         'base_production': 25,
         'worker_type': PopType.laborer
     }
     cotton_plantation = {
         'title': 'Cotton Plantation',
-        'type': Resource.cotton,
+        'good': Good.cotton,
         'base_production': 25,
         'worker_type': PopType.farmer
     }
