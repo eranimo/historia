@@ -41,16 +41,13 @@ class Country(object):
             'border_color': border_color.hex
         }
 
-    @property
-    def name(self):
-        return self._name
+        self.name = ''
 
-    @name.setter
-    def name(self, value):
-        self._name = value
-        self.manager.logger.log(self, {
-            'name': value
-        })
+    def settle_hex(self, hex_inst):
+        "Settles a new hex, creating a province and returning it"
+        province = Province(self.manager, hex_inst, self, is_capital=False)
+        self.provinces.append(province)
+        return province
 
     @property
     def pops(self):
@@ -60,7 +57,7 @@ class Country(object):
         return pops
 
     def __repr__(self):
-        return "<Country: id={}>".format(self.id)
+        return "<Country: name={} id={}>".format(self.name, self.id)
 
     def __eq__(self, other):
         return self.id == other.id
@@ -76,5 +73,6 @@ class Country(object):
         "Export country data"
         return {
             'display': self.display,
-            'provinces': []
+            'name': self.name,
+            'provinces': [p.id for p in self.provinces]
         }

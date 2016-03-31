@@ -1,3 +1,4 @@
+import arrow
 from copy import deepcopy as copy
 from pprint import PrettyPrinter
 
@@ -21,6 +22,10 @@ class Change:
 
     def __repr__(self):
         return "<Change type='{}' key='{}' value='{}'".format(self.type, self.key, self.value)
+
+    def export(self):
+        return self.__dict__
+
 
 def list_changes(old_list, new_list, key):
     changes = []
@@ -46,6 +51,7 @@ def list_changes(old_list, new_list, key):
                 changes.append(Change('set_index', key_string(index), None))
     return changes
 
+
 def dict_changes(old_dict, new_dict):
     # print('compare', old_dict, new_dict)
     changes = []
@@ -69,19 +75,27 @@ def dict_changes(old_dict, new_dict):
 
 class ChangeStore:
     "A dictionary of models that reports the changes made to them within the last `tick`"
-    def __init__(self):
-        self.initial_tick = 0
+    def __init__(self, start_day):
+        self.initial_tick = start_day
         self.tick = self.initial_tick
         self.store = {}
 
 
         self.change_log = {}
-        self.change_log[0] = {}
+        self.change_log[self.initial_tick] = {}
         self.store_updates = {}
-        self.store_updates[0] = {}
+        self.store_updates[self.initial_tick] = {}
 
     def model_get(self, model):
-        return copy(model.__dict__)
+        return copy(model.export())
+
+    def extend(self, models):
+        "Add a bunch of models"
+        for m in models:
+            self.add(m)
+
+    def last_day(self):
+        return self.tick.replace(days=-1)
 
     def add(self, model):
         "Add a new model to the store"
@@ -90,8 +104,8 @@ class ChangeStore:
         self.change_log[self.tick][model.id] = changes
         self.store_updates[self.tick][model.id] = self.model_get(model)
 
-    def changes(self):
-        "Reports what models have changed within the last tick"
+    def commit(self):
+        "Commits changes and returns what models have changed within the last tick"
         # loop over every model, update if changed
         if self.tick == self.initial_tick:
             return self.change_log[self.initial_tick]
@@ -101,58 +115,17 @@ class ChangeStore:
 
         # compile changes
         for id_num, model in self.store.items():
-            last_model = self.store_updates[self.tick-1][id_num]
+            last_model = self.store_updates[self.last_day()][id_num]
             current_model = self.model_get(model)
             if current_model != last_model:
                 self.change_log[self.tick][id_num] = dict_changes(last_model, current_model)
 
         return self.change_log[self.tick]
 
-    def next_tick(self):
-        self.tick += 1
+    def next_day(self):
+        self.tick = self.tick.replace(days=+1)
         self.change_log[self.tick] = {}
         self.store_updates[self.tick] = {}
-        return self.tick
 
-
-
-if __name__ == "__main__":
-
-    class Foo:
-        def __init__(self, id_num, value):
-            self.id = id_num
-            self.value = value
-            self.s = set()
-            self.l = []
-
-        def update_something(self, value):
-            self.value = value
-
-        def append_something(self, value):
-            self.l.append(value)
-
-        def __repr__(self):
-            return "<Foo id={} value={}>".format(self.id, self.value)
-
-    s = ChangeStore()
-    f = Foo('id-1', 'Foobar')
-    s.add(f)
-    echo(s.changes())
-
-
-    s.next_tick()
-    f.update_something('asdasd')
-    f.append_something(123123)
-    f.s.add(1)
-    echo(s.changes())
-
-    s.next_tick()
-    f.update_something('zzz')
-    f.append_something(123)
-    f.s.remove(1)
-    echo(s.changes())
-
-    s.next_tick()
-    f.l = [0]
-    del f.s
-    echo(s.changes())
+    def export(self):
+        return {key.format("YYYY-MM-DD"): value for key, value in self.change_log.items()}

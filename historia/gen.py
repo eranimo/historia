@@ -4,13 +4,14 @@ import arrow
 import json
 
 from historia.time import TimelineProperty
-from historia.country import Country
+from historia.country import Country, Province
 from historia.pops import Pop, make_random_pop, PopType
 from historia.economy import make_RGOs, RGOType, Good
 from historia.map import WorldMap
 from historia.world import give_hex_natural_resources
 from historia.log import HistoryLogger
 from historia.enums import HexType
+from historia.utils import ChangeStore, Change, Timer
 
 from termcolor import colored
 
@@ -23,6 +24,12 @@ from pprint import PrettyPrinter
 
 pp = PrettyPrinter(indent=4)
 echo = pp.pprint
+
+class JsonEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Change):
+            return obj.export()
+        return json.JSONEncoder.default(self, obj)
 
 class Historia(object):
     """
@@ -54,11 +61,23 @@ class Historia(object):
 
         self.logger = HistoryLogger(self)
 
+        self.stores = {
+            'Country': ChangeStore(self.current_day),
+            'Province': ChangeStore(self.current_day),
+            'Pop': ChangeStore(self.current_day)
+        }
 
         # temp
         self.people = set()
 
-        self._populate()
+        with Timer("Populating world with initial data"):
+            self._populate()
+
+    def next_day(self):
+        self.current_day = self.current_day.replace(days=+1)
+        for storeName, store in self.stores.items():
+            store.commit()
+            store.next_day()
 
 
     def start(self):
@@ -72,7 +91,7 @@ class Historia(object):
         while self.current_day <= self.end_day:
             date = '{}'.format(self.current_day.format('dddd MMMM D, YYYY'))
             print('→ {}:'.format(colored(date, 'blue', attrs=['bold', 'underline'])))
-            self.current_day = self.current_day.replace(days=+1)
+            self.next_day()
 
 
     def _populate(self):
@@ -83,43 +102,57 @@ class Historia(object):
         """
 
         # find a suitable hex
-        favorable_hexes = sorted(self.map.hexes, key=lambda h: h.favorability, reverse=True)
-        start_hex = favorable_hexes[1]
+        with Timer("Finding suitable hexes"):
+            favorable_hexes = sorted(self.map.hexes, key=lambda h: h.favorability, reverse=True)
+            start_hex = favorable_hexes[0]
 
         # give the hex some natural resources
-        give_hex_natural_resources(start_hex)
-        print('Hex natural resources:')
-        echo(start_hex.natural_resources)
+        with Timer("\tMaking natural resources"):
+            give_hex_natural_resources(start_hex)
+            echo(start_hex.natural_resources)
 
-        # create a province and country
-        start_country = Country(self, start_hex)
-        start_country.name = 'Elysium'
-        self.countries.append(start_country)
+        with Timer("\tCreating a province and country"):
+            start_country = Country(self, start_hex)
+            start_country.name = 'Elysium'
 
-        # Give that province pops and RGOs
-        province = start_country.provinces[0]
-        pops = []
+            self.stores['Country'].add(start_country)
+            self.countries.append(start_country)
 
-        a1 = make_random_pop(province, PopType.aristocrat)
-        f1 = make_random_pop(province, PopType.farmer)
-        #make_RGOs(province, RGOType.grain_farm, a1, f1)
-        f2 = make_random_pop(province, PopType.farmer)
+            # Give that province pops and RGOs
+            province = start_country.provinces[0]
+            self.stores['Province'].add(province)
+
+        with Timer("\tMaking Pops and RGOs"):
+            pops = []
+            a1 = make_random_pop(province, PopType.aristocrat)
+            f1 = make_random_pop(province, PopType.farmer)
+            #make_RGOs(province, RGOType.grain_farm, a1, f1)
+            f2 = make_random_pop(province, PopType.farmer)
 
 
-        a2 = make_random_pop(province, PopType.aristocrat)
-        l1 = make_random_pop(province, PopType.laborer)
-        l2 = make_random_pop(province, PopType.laborer)
+            a2 = make_random_pop(province, PopType.aristocrat)
+            l1 = make_random_pop(province, PopType.laborer)
+            l2 = make_random_pop(province, PopType.laborer)
 
-        c1 = make_random_pop(province, PopType.craftsman)
-        c2 = make_random_pop(province, PopType.craftsman)
+            c1 = make_random_pop(province, PopType.craftsman)
+            c2 = make_random_pop(province, PopType.craftsman)
 
-        province.add_pops([a1, f1, f2, a2, l1, l2, c1, c2])
+            new_pops = [a1, f1, f2, a2, l1, l2, c1, c2]
+            province.add_pops(new_pops)
+            self.stores['Pop'].extend(new_pops)
 
-        print('Hex: {}'.format(start_hex))
-        print('Country: {}'.format(start_country))
-        print(colored('Pops:', 'blue'))
-        echo(province.pops)
+        with Timer("\tMaking another day"):
+            self.next_day()
 
+            start_country.name = 'Rome'
+            favorable_hexes = sorted(self.map.hexes, key=lambda h: h.favorability, reverse=True)
+
+            # add another provinces
+            second_hex = favorable_hexes[1]
+            new_province = start_country.settle_hex(second_hex)
+
+
+        self.next_day()
 
 
     def export(self, output_file):
@@ -139,6 +172,10 @@ class Historia(object):
                     'Province': {p.id: p.export() for c in self.countries for p in c.provinces},
                     'Pop': {p.id: p.export() for c in self.countries for p in c.pops}
                 },
-                'timeline': self.logger.export()
+                'timeline': {}
             }
-            json.dump(data, outfile, indent=2)
+            for storeName, store in self.stores.items():
+                data['timeline'][storeName] = store.export()
+
+            with Timer("Exporting to JSON"):
+                json.dump(data, outfile, indent=2, cls=JsonEncoder)

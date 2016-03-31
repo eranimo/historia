@@ -67,6 +67,7 @@ class Province(object):
     def export(self):
         return {
             'hex': self.hex.coords,
+            'owner': self.owner.id,
             'pops': [],
             'rgos': []
         }
