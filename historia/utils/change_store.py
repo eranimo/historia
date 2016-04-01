@@ -115,7 +115,10 @@ class ChangeStore:
 
         # compile changes
         for id_num, model in self.store.items():
-            last_model = self.store_updates[self.last_day()][id_num]
+            try:
+                last_model = self.store_updates[self.last_day()][id_num]
+            except KeyError:
+                last_model = {}
             current_model = self.model_get(model)
             if current_model != last_model:
                 self.change_log[self.tick][id_num] = dict_changes(last_model, current_model)

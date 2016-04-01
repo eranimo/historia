@@ -45,6 +45,7 @@ class Hex:
                 self.is_coast = True
 
         self.owner = None
+        self._neighbors = None
 
         self.natural_resources = []
 
@@ -103,7 +104,7 @@ class Hex:
     @property
     def hex_east(self):
         """ Returns the hex to the East or None if end of map"""
-        if self.y == self.world_map.size:
+        if self.y == self.world_map.size-1:
             return self.world_map.find_hex(self.x, 0)
         else:
             return self.world_map.find_hex(self.x, self.y + 1)
@@ -112,7 +113,7 @@ class Hex:
     def hex_west(self):
         """ Returns the hex to the West or None if end of map"""
         if self.y == 0:
-            return self.world_map.find_hex(self.x, self.world_map.size)
+            return self.world_map.find_hex(self.x, self.world_map.size-1)
         else:
             return self.world_map.find_hex(self.x, self.y - 1)
 
@@ -120,9 +121,9 @@ class Hex:
     def hex_north_west(self):
         """ Returns the hex to the north west"""
         if self.x == 0:  # top of map
-            return self.world_map.find_hex(0, round(self.y / -1 + self.world_map.size))
+            return self.world_map.find_hex(0, round(self.y / -1 + self.world_map.size-1))
         elif self.y == 0 and self.x % 2 == 0:  # left of map and even
-            return self.world_map.find_hex(self.x - 1, self.world_map.size)
+            return self.world_map.find_hex(self.x - 1, self.world_map.size-1)
         else:
             if self.x % 2 == 0:  # even
                 return self.world_map.find_hex(self.x - 1, self.y - 1)
@@ -133,8 +134,8 @@ class Hex:
     def hex_north_east(self):
         """ Returns the hex to the North East or None if end of map"""
         if self.x == 0:  # top of map
-            return self.world_map.find_hex(0, round(self.y / -1 + self.world_map.size))
-        elif self.y == self.world_map.size and self.x % 2 == 1:  # right of map and x is odd
+            return self.world_map.find_hex(0, round(self.y / -1 + self.world_map.size-1))
+        elif self.y == self.world_map.size-1 and self.x % 2 == 1:  # right of map and x is odd
             return self.world_map.find_hex(self.x - 1, 0)
         else:
             if self.x % 2 == 0:  # even
@@ -145,10 +146,12 @@ class Hex:
     @property
     def hex_south_west(self):
         """ Returns the hex to the South West or None if end of map"""
-        if self.x == self.world_map.size:  # bottom of map
-            return self.world_map.find_hex(self.world_map.size, round(self.y / -1 + self.world_map.size))
+        if self.x == self.world_map.size-1:  # bottom of map
+            return self.world_map.find_hex(self.world_map.size-1, round(self.y / -1 + self.world_map.size-1))
         elif self.y == 0 and self.x % 2 == 1:  # left of map and x is odd
-            return self.world_map.find_hex(self.x - 1, self.world_map.size)
+            return self.world_map.find_hex(self.x + 1, self.world_map.size-1)
+        elif self.y == 0 and self.x % 2 == 0:  # left of map and x is even
+            return self.world_map.find_hex(self.x + 1, 0)
         else:
             if self.x % 2 == 0:  # even
                 return self.world_map.find_hex(self.x + 1, self.y - 1)
@@ -158,9 +161,9 @@ class Hex:
     @property
     def hex_south_east(self):
         """ Returns the hex to the South East or None if end of map"""
-        if self.x == self.world_map.size:  # bottom of map
-            return self.world_map.find_hex(self.world_map.size, round(self.y / -1 + self.world_map.size))
-        elif self.y == self.world_map.size and self.x % 2 == 1:  # right of map and x is odd
+        if self.x == self.world_map.size-1:  # bottom of map
+            return self.world_map.find_hex(self.world_map.size-1, round(self.y / -1 + self.world_map.size-1))
+        elif self.y == self.world_map.size-1 and self.x % 2 == 1:  # right of map and x is odd
             return self.world_map.find_hex(self.x + 1, 0)
         else:
             if self.x % 2 == 0:  # even
@@ -194,5 +197,6 @@ class Hex:
     def export(self):
         "Export Hex data as dict"
         data = self.map_data
+        data['neighbors'] = {n[1].name: {'x': n[0].x, 'y': n[0].y } for n in self.neighbors}
         data['natural_resources'] = [r.name for r in self.natural_resources]
         return data

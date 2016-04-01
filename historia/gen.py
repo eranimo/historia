@@ -112,14 +112,14 @@ class Historia(object):
             echo(start_hex.natural_resources)
 
         with Timer("\tCreating a province and country"):
-            start_country = Country(self, start_hex)
-            start_country.name = 'Elysium'
+            country1 = Country(self, start_hex)
+            country1.name = 'Elysium'
 
-            self.stores['Country'].add(start_country)
-            self.countries.append(start_country)
+            self.stores['Country'].add(country1)
+            self.countries.append(country1)
 
             # Give that province pops and RGOs
-            province = start_country.provinces[0]
+            province = country1.provinces[0]
             self.stores['Province'].add(province)
 
         with Timer("\tMaking Pops and RGOs"):
@@ -141,16 +141,28 @@ class Historia(object):
             province.add_pops(new_pops)
             self.stores['Pop'].extend(new_pops)
 
-        with Timer("\tMaking another day"):
+        with Timer("\tMaking another province in another day"):
             self.next_day()
 
-            start_country.name = 'Rome'
-            favorable_hexes = sorted(self.map.hexes, key=lambda h: h.favorability, reverse=True)
+            country1.name = 'Rome'
 
             # add another provinces
             second_hex = favorable_hexes[1]
-            new_province = start_country.settle_hex(second_hex)
+            new_province = country1.settle_hex(second_hex)
+            self.stores['Province'].add(new_province)
 
+        with Timer("\tMaking another country in another day"):
+            self.next_day()
+
+            country2 = Country(self, favorable_hexes[2])
+            country2.name = 'Athens'
+
+            self.stores['Country'].add(country2)
+            self.countries.append(country2)
+
+            # Give that province pops and RGOs
+            province2 = country2.provinces[0]
+            self.stores['Province'].add(province2)
 
         self.next_day()
 
@@ -167,10 +179,14 @@ class Historia(object):
                     'Good': Good.ref_map(),
                     'RGOType': RGOType.ref_map()
                 },
+                'times': {
+                    'start_day': self.start_date.format("YYYY-MM-DD"),
+                    'end_day': self.stores['Country'].tick.format("YYYY-MM-DD")
+                },
                 'data': {
-                    'Country': {c.id: c.export() for c in self.countries},
-                    'Province': {p.id: p.export() for c in self.countries for p in c.provinces},
-                    'Pop': {p.id: p.export() for c in self.countries for p in c.pops}
+                    'Country': {}, # {c.id: c.export() for c in self.countries},
+                    'Province': {}, # {p.id: p.export() for c in self.countries for p in c.provinces},
+                    'Pop': {} # {p.id: p.export() for c in self.countries for p in c.pops}
                 },
                 'timeline': {}
             }

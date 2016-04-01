@@ -4,3 +4,4 @@ dist/
 *.pyc
 build/
 historia.egg-info
+bin/export.json
