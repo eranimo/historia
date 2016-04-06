@@ -4,19 +4,22 @@ from historia.enums.dict_enum import DictEnum
 
 class Good(DictEnum):
     "A physical commodity consumed by Pops"
+    __exports__ = ['title']
     # Raw
     grain = { 'title': 'Grain' }
     meat = { 'title': 'Meat'}
     fish = { 'title': 'Fish' }
     fruit = { 'title': 'Fruit' }
     vegetable = { 'title': 'Vegetable' }
-    iron = { 'title': 'Iron' }
+    iron_ore = { 'title': 'Iron Ore' }
     timber = { 'title': 'Timber' }
     tea = { 'title': 'Tea' }
     wool = { 'title': 'Wool' }
     cotton = { 'title': 'Cotton' }
 
     # Produced
+    iron = { 'title': 'Iron' }
+    tools = { 'title': 'Tools' }
     bread = { 'title': 'Bread' }
     alcohol = { 'title': 'Alcohol' }
     lumber = { 'title': 'Lumber' }
@@ -46,6 +49,18 @@ class PlantedResources(Enum):
 #            2nd level list items are OR
 # TODO: these need to be tweaked
 production_tree = {
+    Good.iron: {
+        'input': [
+            (Good.iron_ore, 1)
+        ],
+        'output': 1
+    },
+    Good.tools: {
+        'input': [
+            (Good.iron, 5)
+        ],
+        'output': 5
+    },
     Good.bread: {
         'input': [
             (Good.grain, 2)

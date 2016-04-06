@@ -6,4 +6,5 @@ if __name__ == "__main__":
 
     with open(file_path) as fobj:
         gen = Historia(json.load(fobj))
+        gen.start()
         gen.export('./bin/export.json')

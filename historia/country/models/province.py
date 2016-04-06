@@ -30,12 +30,12 @@ class Province(object):
             'owner': owner.id
         })
 
+    def __repr__(self):
+        return "<Province id={} owner={}>".format(self.id, self.owner)
+
     def add_pops(self, pops):
         "Add pops from a list."
         self.pops.extend(pops)
-        self.manager.logger.log(self, {
-            'pops': [p.id for p in pops]
-        }, LogAction.extend)
 
     @property
     def neighbors(self):
@@ -68,6 +68,8 @@ class Province(object):
         return {
             'hex': self.hex.coords,
             'owner': self.owner.id,
+            'is_capital': self.is_capital,
+            'market': self.market.export(),
             'pops': [],
             'rgos': []
         }

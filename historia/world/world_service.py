@@ -33,7 +33,7 @@ resource_chances = {
         (NaturalResource.trees, 100)
     ],
     Biome.temperate_forest: [
-        (NaturalResource.iron, 0.5),
+        (NaturalResource.iron, 100),
         (NaturalResource.trees, 100)
     ],
     Biome.temperate_rainforest: [

@@ -5,12 +5,12 @@ import json
 
 from historia.time import TimelineProperty
 from historia.country import Country, Province
-from historia.pops import Pop, make_random_pop, PopType
+from historia.pops import Pop, make_initial_pops, PopType
 from historia.economy import make_RGOs, RGOType, Good
 from historia.map import WorldMap
 from historia.world import give_hex_natural_resources
 from historia.log import HistoryLogger
-from historia.enums import HexType
+from historia.enums import HexType, DictEnum
 from historia.utils import ChangeStore, Change, Timer
 
 from termcolor import colored
@@ -22,14 +22,18 @@ default_params = {
 
 from pprint import PrettyPrinter
 
-pp = PrettyPrinter(indent=4)
+pp = PrettyPrinter(indent=4, depth=6)
 echo = pp.pprint
+
 
 class JsonEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Change):
             return obj.export()
+        if isinstance(obj, DictEnum):
+            return obj.ref()
         return json.JSONEncoder.default(self, obj)
+
 
 class Historia(object):
     """
@@ -37,8 +41,9 @@ class Historia(object):
         Responsible for exporting the data
         and for making new days
     """
-    def __init__(self, map_data, params={}):
+    def __init__(self, map_data, debug=False, params={}):
         self.params = default_params
+        self.debug = debug
         self.params.update(params)
         for key, value in self.params.items():
             setattr(self, key, value)
@@ -48,7 +53,7 @@ class Historia(object):
 
         # set the current_day
         self.current_day = self.start_date
-        self.end_day = self.start_date.replace(months=+self.run_months)
+        self.end_day = self.start_date.replace(days=+5) # self.run_months)
 
         # list of all countries that have ever existed
         self.countries = []
@@ -70,15 +75,15 @@ class Historia(object):
         # temp
         self.people = set()
 
-        with Timer("Populating world with initial data"):
-            self._populate()
+        with Timer("Populating world with initial data", debug=self.debug):
+            self.populate()
 
     def next_day(self):
+        "Advance another day, updating the change stores"
         self.current_day = self.current_day.replace(days=+1)
         for storeName, store in self.stores.items():
             store.commit()
             store.next_day()
-
 
     def start(self):
         """
@@ -91,10 +96,17 @@ class Historia(object):
         while self.current_day <= self.end_day:
             date = '{}'.format(self.current_day.format('dddd MMMM D, YYYY'))
             print('→ {}:'.format(colored(date, 'blue', attrs=['bold', 'underline'])))
+
+            # get every market in the world
+            markets = [p.market for c in self.countries for p in c.provinces]
+
+            for m in markets:
+                # perform production and trading
+                m.simulate()
+
             self.next_day()
 
-
-    def _populate(self):
+    def populate(self):
         """
             Populate the map with some initial data.
             Make between 5 and 10 random countries owning one hex
@@ -102,16 +114,17 @@ class Historia(object):
         """
 
         # find a suitable hex
-        with Timer("Finding suitable hexes"):
+        with Timer("Finding suitable hexes", debug=self.debug):
             favorable_hexes = sorted(self.map.hexes, key=lambda h: h.favorability, reverse=True)
             start_hex = favorable_hexes[0]
 
         # give the hex some natural resources
-        with Timer("\tMaking natural resources"):
+        with Timer("\tMaking natural resources", debug=self.debug):
             give_hex_natural_resources(start_hex)
-            echo(start_hex.natural_resources)
+            if self.debug:
+                echo(start_hex.natural_resources)
 
-        with Timer("\tCreating a province and country"):
+        with Timer("\tCreating a province and country", debug=self.debug):
             country1 = Country(self, start_hex)
             country1.name = 'Elysium'
 
@@ -122,47 +135,33 @@ class Historia(object):
             province = country1.provinces[0]
             self.stores['Province'].add(province)
 
-        with Timer("\tMaking Pops and RGOs"):
-            pops = []
-            a1 = make_random_pop(province, PopType.aristocrat)
-            f1 = make_random_pop(province, PopType.farmer)
-            #make_RGOs(province, RGOType.grain_farm, a1, f1)
-            f2 = make_random_pop(province, PopType.farmer)
+        with Timer("\tMaking Pops and RGOs", debug=self.debug):
+            pops = make_initial_pops(province)
+            province.add_pops(pops)
+            self.stores['Pop'].extend(pops)
 
-
-            a2 = make_random_pop(province, PopType.aristocrat)
-            l1 = make_random_pop(province, PopType.laborer)
-            l2 = make_random_pop(province, PopType.laborer)
-
-            c1 = make_random_pop(province, PopType.craftsman)
-            c2 = make_random_pop(province, PopType.craftsman)
-
-            new_pops = [a1, f1, f2, a2, l1, l2, c1, c2]
-            province.add_pops(new_pops)
-            self.stores['Pop'].extend(new_pops)
-
-        with Timer("\tMaking another province in another day"):
-            self.next_day()
-
-            country1.name = 'Rome'
-
-            # add another provinces
-            second_hex = favorable_hexes[1]
-            new_province = country1.settle_hex(second_hex)
-            self.stores['Province'].add(new_province)
-
-        with Timer("\tMaking another country in another day"):
-            self.next_day()
-
-            country2 = Country(self, favorable_hexes[2])
-            country2.name = 'Athens'
-
-            self.stores['Country'].add(country2)
-            self.countries.append(country2)
-
-            # Give that province pops and RGOs
-            province2 = country2.provinces[0]
-            self.stores['Province'].add(province2)
+        # with Timer("\tMaking another province in another day", debug=self.debug):
+        #     self.next_day()
+        #
+        #     country1.name = 'Rome'
+        #
+        #     # add another provinces
+        #     second_hex = favorable_hexes[1]
+        #     new_province = country1.settle_hex(second_hex)
+        #     self.stores['Province'].add(new_province)
+        #
+        # with Timer("\tMaking another country in another day", debug=self.debug):
+        #     self.next_day()
+        #
+        #     country2 = Country(self, favorable_hexes[2])
+        #     country2.name = 'Athens'
+        #
+        #     self.stores['Country'].add(country2)
+        #     self.countries.append(country2)
+        #
+        #     # Give that province pops and RGOs
+        #     province2 = country2.provinces[0]
+        #     self.stores['Province'].add(province2)
 
         self.next_day()
 
@@ -175,9 +174,8 @@ class Historia(object):
                 'geoforms': self.map_data.get('geoforms'),
                 'hexes': self.map.export(),
                 'enums': {
-                    'PopType': PopType.ref_map(),
-                    'Good': Good.ref_map(),
-                    'RGOType': RGOType.ref_map()
+                    'PopType': PopType.export_all(),
+                    'Good': Good.export_all()
                 },
                 'times': {
                     'start_day': self.start_date.format("YYYY-MM-DD"),
@@ -193,5 +191,8 @@ class Historia(object):
             for storeName, store in self.stores.items():
                 data['timeline'][storeName] = store.export()
 
-            with Timer("Exporting to JSON"):
+            with Timer("Exporting to JSON", debug=self.debug):
                 json.dump(data, outfile, indent=2, cls=JsonEncoder)
+
+        # with open('./bin/timeline.json', 'w') as timeline_file:
+        #     json.dump(data['timeline'], timeline_file, indent=2, cls=JsonEncoder)

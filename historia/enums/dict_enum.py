@@ -1,4 +1,6 @@
 from enum import Enum
+import random
+
 
 class DictEnum(Enum):
     "A Enum whose values are dict types, with defaults provided by cls.__defaults__"
@@ -19,8 +21,26 @@ class DictEnum(Enum):
         }
 
     @classmethod
+    def random(cls):
+        return cls[random.choice(list(cls.__members__))]
+
+    @classmethod
+    def items(cls):
+        return cls.__members__.items()
+
+    @classmethod
     def all(cls):
         return [cls[x] for x in list(cls.__members__)]
+
+    def export(self):
+        if hasattr(self, '__exports__'):
+            exported = {k: self.value[k] for k in self.__exports__}
+            exported['name'] = self.name
+            return exported
+
+    @classmethod
+    def export_all(cls):
+        return {x: cls[x].export() for x in list(cls.__members__)}
 
     @classmethod
     def ref_map(cls):
@@ -45,5 +65,4 @@ class DictEnum(Enum):
                     else:
                         data[key] = convert(value)
                 data = tuple(data)
-            return data
-        return {x: convert(cls[x].value) for x in list(cls.__members__)}
+        return {x: convert(cls[x].value) for x in members}

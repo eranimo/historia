@@ -8,10 +8,8 @@ class RGO(object):
 
         self.rgo_type = rgo_type
 
-        self.max_employees = 40000
-
-        self.owner = None # the Pop that owns this RGO
-        self.employees = None # the Pops that are employed at this RGO
+        self.owner = owner # the Pop that owns this RGO
+        self.employee = employee # the Pop that works here
 
     def perform_production(self):
         """

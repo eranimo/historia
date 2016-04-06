@@ -1,0 +1,246 @@
+{
+  "Province": {
+    "0001-01-02": {
+      "pr-b8ea02c2fc7a488ebf6507986c821903": [
+        {
+          "value": "co-9372f35d710845b38806fb0debc09479", 
+          "key": "owner", 
+          "type": "set"
+        }, 
+        {
+          "value": [], 
+          "key": "pops", 
+          "type": "set"
+        }, 
+        {
+          "value": [], 
+          "key": "rgos", 
+          "type": "set"
+        }, 
+        {
+          "value": {
+            "y": 88, 
+            "x": 20
+          }, 
+          "key": "hex", 
+          "type": "set"
+        }
+      ]
+    }, 
+    "0001-01-03": {
+      "pr-361566f0a29748b1b3ad25424a7f16a9": [
+        {
+          "value": "co-5f01fc2fbb5544519f1278ce2518f651", 
+          "key": "owner", 
+          "type": "set"
+        }, 
+        {
+          "value": [], 
+          "key": "pops", 
+          "type": "set"
+        }, 
+        {
+          "value": [], 
+          "key": "rgos", 
+          "type": "set"
+        }, 
+        {
+          "value": {
+            "y": 87, 
+            "x": 20
+          }, 
+          "key": "hex", 
+          "type": "set"
+        }
+      ]
+    }, 
+    "0001-01-01": {
+      "pr-c7771a21b8414097908c46c192b8e955": [
+        {
+          "value": "co-9372f35d710845b38806fb0debc09479", 
+          "key": "owner", 
+          "type": "set"
+        }, 
+        {
+          "value": [], 
+          "key": "pops", 
+          "type": "set"
+        }, 
+        {
+          "value": [], 
+          "key": "rgos", 
+          "type": "set"
+        }, 
+        {
+          "value": {
+            "y": 88, 
+            "x": 19
+          }, 
+          "key": "hex", 
+          "type": "set"
+        }
+      ]
+    }, 
+    "0001-01-04": {}
+  }, 
+  "Country": {
+    "0001-01-02": {
+      "co-9372f35d710845b38806fb0debc09479": [
+        {
+          "value": "pr-b8ea02c2fc7a488ebf6507986c821903", 
+          "key": "provinces[1]", 
+          "type": "set_index"
+        }, 
+        {
+          "value": "Rome", 
+          "key": "name", 
+          "type": "update"
+        }
+      ]
+    }, 
+    "0001-01-03": {
+      "co-5f01fc2fbb5544519f1278ce2518f651": [
+        {
+          "value": [
+            "pr-361566f0a29748b1b3ad25424a7f16a9"
+          ], 
+          "key": "provinces", 
+          "type": "set"
+        }, 
+        {
+          "value": {
+            "border_color": "#7e7e2a", 
+            "map_color": "#bfbf40"
+          }, 
+          "key": "display", 
+          "type": "set"
+        }, 
+        {
+          "value": "Athens", 
+          "key": "name", 
+          "type": "set"
+        }
+      ]
+    }, 
+    "0001-01-01": {
+      "co-9372f35d710845b38806fb0debc09479": [
+        {
+          "value": [
+            "pr-c7771a21b8414097908c46c192b8e955"
+          ], 
+          "key": "provinces", 
+          "type": "set"
+        }, 
+        {
+          "value": {
+            "border_color": "#2a717e", 
+            "map_color": "#40abbf"
+          }, 
+          "key": "display", 
+          "type": "set"
+        }, 
+        {
+          "value": "Elysium", 
+          "key": "name", 
+          "type": "set"
+        }
+      ]
+    }, 
+    "0001-01-04": {}
+  }, 
+  "Pop": {
+    "0001-01-02": {}, 
+    "0001-01-03": {}, 
+    "0001-01-01": {
+      "po-7013905555fc416b9d661f45fb95d21a": [
+        {
+          "value": {
+            "type": "enum", 
+            "id": "PopType", 
+            "key": "farmer"
+          }, 
+          "key": "pop_type", 
+          "type": "set"
+        }
+      ], 
+      "po-69a85aea03c14455b66ee98443fdab2e": [
+        {
+          "value": {
+            "type": "enum", 
+            "id": "PopType", 
+            "key": "laborer"
+          }, 
+          "key": "pop_type", 
+          "type": "set"
+        }
+      ], 
+      "po-eea2346feda1492aa2f1316d43aaf1bf": [
+        {
+          "value": {
+            "type": "enum", 
+            "id": "PopType", 
+            "key": "laborer"
+          }, 
+          "key": "pop_type", 
+          "type": "set"
+        }
+      ], 
+      "po-7497cea431474e399cb465e791b2e22b": [
+        {
+          "value": {
+            "type": "enum", 
+            "id": "PopType", 
+            "key": "craftsman"
+          }, 
+          "key": "pop_type", 
+          "type": "set"
+        }
+      ], 
+      "po-6df1de74bf0347e0a7e76f098b4d84ff": [
+        {
+          "value": {
+            "type": "enum", 
+            "id": "PopType", 
+            "key": "farmer"
+          }, 
+          "key": "pop_type", 
+          "type": "set"
+        }
+      ], 
+      "po-9fb6b6d5af364679a2c8262ab8acc194": [
+        {
+          "value": {
+            "type": "enum", 
+            "id": "PopType", 
+            "key": "craftsman"
+          }, 
+          "key": "pop_type", 
+          "type": "set"
+        }
+      ], 
+      "po-dd77b78ac76045809cfb763cc0709d17": [
+        {
+          "value": {
+            "type": "enum", 
+            "id": "PopType", 
+            "key": "aristocrat"
+          }, 
+          "key": "pop_type", 
+          "type": "set"
+        }
+      ], 
+      "po-22ce2e7ed33e4549b01381eaaa6b2d5c": [
+        {
+          "value": {
+            "type": "enum", 
+            "id": "PopType", 
+            "key": "aristocrat"
+          }, 
+          "key": "pop_type", 
+          "type": "set"
+        }
+      ]
+    }, 
+    "0001-01-04": {}
+  }
+}

@@ -5,3 +5,4 @@ dist/
 build/
 historia.egg-info
 bin/export.json
+**/**/__pycache__/
