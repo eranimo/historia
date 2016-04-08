@@ -4,7 +4,10 @@ from random import randint
 
 def make_random_pop(province, pop_type, count=10, min_p=1e4, max_p=2e4):
     "Make a random pop at a particular province of a certain PopType"
-    return [Pop(province, pop_type, randint(min_p, max_p))] * count
+    pops = []
+    for i in range(count):
+        pops.append(Pop(province, pop_type, randint(min_p, max_p)))
+    return pops
 
 def make_initial_pops(province):
     pops = []

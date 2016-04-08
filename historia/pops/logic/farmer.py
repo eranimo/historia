@@ -10,7 +10,7 @@ class FarmerLogic(LogicBase):
 
         if timber is None or bread is None:
             # fine $2 for being idle
-            self.changeMoney(-2)
+            self.charge_idle_money()
         elif tools is not None:
             # no tools
             self.produce(Good.grain, 4)

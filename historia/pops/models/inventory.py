@@ -134,10 +134,12 @@ class Inventory(object):
 
     def shortage(self, good):
         "Returns the # of units below the desired inventory"
+        # if there is none of this good in the inventory, the shortage is the ideal
         if self.get(good) is None:
             return self.get_ideal(good)
-        if self.get(good).amount < self.get_ideal(good):
-            return self.get_ideal(good) - self.get(good).amount
+        # if the amount is less than the ideal, the difference is the shortage
+        if self.get_amount(good) < self.get_ideal(good):
+            return self.get_ideal(good) - self.get_amount(good)
         return 0
 
     def get(self, good):
@@ -198,6 +200,9 @@ class Inventory(object):
 
     def __hash__(self):
         return hash(self.__key__())
+
+    def display(self):
+        return ', '.join(['{}: ({})'.format(good.title, il.amount) for good, il in self.inventory.items()])
 
     def export(self):
         return [{'good': good.ref(), 'contents': [{'amount': i.amount, 'price': i.price} for i in il]} for good, il in self.inventory.items()]

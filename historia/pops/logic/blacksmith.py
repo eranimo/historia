@@ -10,7 +10,7 @@ class BlacksmithLogic(LogicBase):
 
         if bread is None or iron is None or lumber is None:
             # fine $2 for being idle
-            self.changeMoney(-2)
+            self.charge_idle_money()
         else:
             # 1 iron + 1 lumber = 1 tool
             self.produce(Good.tools, 1)

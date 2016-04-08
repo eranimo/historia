@@ -29,7 +29,7 @@ class Pop(object):
         self.pop_type = pop_type
 
         # ECONOMY
-        self.money = 100
+        self.money = 10
         self.money_yesterday = 0
         self.bankrupt = False
 
@@ -37,9 +37,8 @@ class Pop(object):
         self.inventory = Inventory(200)
         for item in self.pop_type.start_inventory:
             self.inventory.add(item['good'], item['amount'])
-        for good, ideal in self.pop_type.ideal_inventory:
-            self.inventory.set_ideal(item['good'], item['amount'])
 
+        self.change_pop_type(pop_type)
 
         # a dictionary of Goods to PriceRanges
         # represents the price range the agent considers valid for each Good
@@ -65,6 +64,12 @@ class Pop(object):
         self.successful_trades = 0
         self.failed_trades = 0
 
+    def change_pop_type(self, pop_type):
+        self.pop_type = pop_type
+
+        # update ideal
+        for item in self.pop_type.ideal_inventory:
+            self.inventory.set_ideal(item['good'], item['amount'])
 
 
     # Economic methods
@@ -147,9 +152,10 @@ class Pop(object):
         surplus = self.inventory.surplus(good)
         if surplus >= 1: # sell inventory
             # the original only old one item here
-            order = self.create_sell_order(good, 1)
-            print('{} sells 1 {}'.format(self.pop_type.title, good.name))
+            sell_amount = surplus
+            order = self.create_sell_order(good, surplus)
             if order:
+                print('{} sells {} {}'.format(self.pop_type.title, sell_amount, good.name))
                 self.market.sell(order)
         else: # buy more
             shortage = self.inventory.shortage(good)
@@ -165,9 +171,11 @@ class Pop(object):
 
                 if limit > 0:
                     order = self.create_buy_order(good, limit)
-                    print('{} buys {} {}'.format(self.pop_type.title, limit, good.name))
                     if order:
+                        print('{} buys {} {}'.format(self.pop_type.title, limit, good.name))
                         self.market.buy(order)
+            # else:
+            #     print("{} has no shortage of {} (has shortage: {})".format(self.pop_type.title, good.title, shortage))
 
 
 
@@ -260,12 +268,6 @@ class Pop(object):
         elif belief.high < MIN_PRICE:
             belief.high = MIN_PRICE
 
-
-        self.price_belief[good] = belief
-
-
-
-
     def __repr__(self):
         return "<Pop: id={} type={}>".format(self.id, self.pop_type.title)
 
@@ -283,6 +285,7 @@ class Pop(object):
             'pop_type': self.pop_type.ref(),
             'inventory': self.inventory.export(),
             'money': self.money,
+            'money_yesterday': self.money_yesterday,
             'successful_trades': self.successful_trades,
             'failed_trades': self.failed_trades,
         }

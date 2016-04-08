@@ -53,7 +53,7 @@ class Historia(object):
 
         # set the current_day
         self.current_day = self.start_date
-        self.end_day = self.start_date.replace(days=+5) # self.run_months)
+        self.end_day = self.start_date.replace(days=+30) # self.run_months)
 
         # list of all countries that have ever existed
         self.countries = []
@@ -93,12 +93,13 @@ class Historia(object):
         - loop over countries
         - loop over pops
         """
+        markets = [p.market for c in self.countries for p in c.provinces]
+
         while self.current_day <= self.end_day:
             date = '{}'.format(self.current_day.format('dddd MMMM D, YYYY'))
             print('→ {}:'.format(colored(date, 'blue', attrs=['bold', 'underline'])))
 
             # get every market in the world
-            markets = [p.market for c in self.countries for p in c.provinces]
 
             for m in markets:
                 # perform production and trading
@@ -128,17 +129,16 @@ class Historia(object):
             country1 = Country(self, start_hex)
             country1.name = 'Elysium'
 
-            self.stores['Country'].add(country1)
-            self.countries.append(country1)
-
             # Give that province pops and RGOs
             province = country1.provinces[0]
-            self.stores['Province'].add(province)
 
         with Timer("\tMaking Pops and RGOs", debug=self.debug):
             pops = make_initial_pops(province)
             province.add_pops(pops)
+            self.stores['Country'].add(country1)
+            self.stores['Province'].add(province)
             self.stores['Pop'].extend(pops)
+            self.countries.append(country1)
 
         # with Timer("\tMaking another province in another day", debug=self.debug):
         #     self.next_day()

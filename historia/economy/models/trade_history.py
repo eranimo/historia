@@ -19,6 +19,10 @@ class TradeHistoryLog:
         "Adds a record to this HistoryLog"
         self.record[key].append(amount)
 
+    def extend(self, key, amount):
+        "Extend a record to this HistoryLog"
+        self.record[key].extend(amount)
+
     def average(self, key, day_range=15):
         "Gets the average amount of the given Good's record in the last `range` days"
         if key in self.record:

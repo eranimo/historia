@@ -8,8 +8,8 @@ class BakerLogic(LogicBase):
 
         if grain is None:
             # fine $2 for being idle
-            self.changeMoney(-2)
+            self.charge_idle_money()
         else:
             # convert all grain to bread
-            self.produce(Good.bread, grain.amount)
+            self.produce(Good.bread, grain.amount * 2)
             self.consume(Good.grain, grain.amount)

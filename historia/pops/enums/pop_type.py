@@ -5,15 +5,12 @@ from historia.enums.dict_enum import DictEnum
 from historia.economy.enums.resource import Good
 from historia.pops import logic
 
-basic_needs = [
-    (Good.fish, 0.5),
-    (Good.fruit, 1.5),
-    (Good.vegetable, 1.5),
-    (Good.grain, 2.0)
-]
-
-class TestEnum(DictEnum):
-    foo = { 'title': 'foo '}
+# basic_needs = [
+#     (Good.fish, 0.5),
+#     (Good.fruit, 1.5),
+#     (Good.vegetable, 1.5),
+#     (Good.grain, 2.0)
+# ]
 
 
 class PopType(DictEnum):
@@ -33,8 +30,8 @@ class PopType(DictEnum):
         'title': 'Farmer',
         'logic': logic.farmer,
         'start_inventory': [
-            {'good': Good.bread, 'amount': 0},
-            {'good': Good.timber, 'amount': 0},
+            {'good': Good.bread, 'amount': 1},
+            {'good': Good.timber, 'amount': 1},
             {'good': Good.tools, 'amount': 1}
         ],
         'ideal_inventory': [
@@ -49,7 +46,7 @@ class PopType(DictEnum):
         'title': 'Miner',
         'logic': logic.miner,
         'start_inventory': [
-            {'good': Good.bread, 'amount': 0},
+            {'good': Good.bread, 'amount': 1},
             {'good': Good.tools, 'amount': 1}
         ],
         'ideal_inventory': [
@@ -63,8 +60,8 @@ class PopType(DictEnum):
         'title': 'Miller',
         'logic': logic.miller,
         'start_inventory': [
-            {'good': Good.bread, 'amount': 0},
-            {'good': Good.timber, 'amount': 0},
+            {'good': Good.bread, 'amount': 1},
+            {'good': Good.timber, 'amount': 1},
             {'good': Good.tools, 'amount': 1}
         ],
         'ideal_inventory': [
@@ -79,7 +76,7 @@ class PopType(DictEnum):
         'title': 'Woodcutter',
         'logic': logic.woodcutter,
         'start_inventory': [
-            {'good': Good.bread, 'amount': 0},
+            {'good': Good.bread, 'amount': 1},
             {'good': Good.tools, 'amount': 1}
         ],
         'ideal_inventory': [
@@ -93,8 +90,8 @@ class PopType(DictEnum):
         'title': 'Blacksmith',
         'logic': logic.blacksmith,
         'start_inventory': [
-            {'good': Good.bread, 'amount': 0},
-            {'good': Good.iron, 'amount': 0},
+            {'good': Good.bread, 'amount': 1},
+            {'good': Good.iron, 'amount': 1},
             {'good': Good.lumber, 'amount': 1}
         ],
         'ideal_inventory': [
@@ -125,7 +122,7 @@ class PopType(DictEnum):
         'title': 'Baker',
         'logic': logic.baker,
         'start_inventory': [
-            {'good': Good.grain, 'amount': 0}
+            {'good': Good.grain, 'amount': 1}
         ],
         'ideal_inventory': [
             {'good': Good.grain, 'amount': 5}

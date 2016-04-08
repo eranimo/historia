@@ -10,7 +10,7 @@ class MillerLogic(LogicBase):
 
         if timber is None or bread is None:
             # fine $2 for being idle
-            self.changeMoney(-2)
+            self.charge_idle_money()
         elif tools is not None:
             # convert all grain to bread
             self.produce(Good.lumber, timber.amount)

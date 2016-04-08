@@ -70,6 +70,5 @@ class Province(object):
             'owner': self.owner.id,
             'is_capital': self.is_capital,
             'market': self.market.export(),
-            'pops': [],
-            'rgos': []
+            'pops': [p.id for p in self.pops]
         }

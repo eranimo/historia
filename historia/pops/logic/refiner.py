@@ -10,10 +10,10 @@ class RefinerLogic(LogicBase):
 
         if bread is None or iron_ore is None:
             # fine $2 for being idle
-            self.changeMoney(-2)
+            self.charge_idle_money()
         elif tools is not None:
             # convert iron_ore to iron
-            self.produce(Good.iron, 3)
+            self.produce(Good.iron, 2)
             self.consume(Good.iron_ore, 1)
             self.consume(Good.bread, 1)
             self.consume(Good.tools, 1, 0.1)

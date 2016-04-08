@@ -9,6 +9,16 @@ from historia.pops.enums.pop_type import PopType
 
 from historia.economy.models.trade_history import TradeHistory, TradeHistoryLog
 
+GOOD_POPTYPE_MAP = {
+    Good.grain: PopType.farmer,
+    Good.iron_ore: PopType.miner,
+    Good.lumber: PopType.miller,
+    Good.timber: PopType.woodcutter,
+    Good.tools: PopType.blacksmith,
+    Good.iron: PopType.refiner,
+    Good.bread: PopType.baker
+}
+
 
 class Market:
     """
@@ -63,7 +73,6 @@ class Market:
         "Fufill all orders that can be resolved for a particular Good"
         buy_orders = self.buy_orders[good]
         sell_orders = self.sell_orders[good]
-        print('Resolve Orders for {}'.format(good.title))
 
         # shuffle all orders to remove bias
         shuffle(buy_orders)
@@ -74,8 +83,14 @@ class Market:
 
         # lowest sell price first
         sell_orders.sort(key=lambda o: o.price, reverse=False)
-        print('\tBuy orders: {}'.format(len(buy_orders)))
-        print('\tSell orders: {}'.format(len(sell_orders)))
+        if len(buy_orders) and len(sell_orders):
+            print('Resolve Orders for {}'.format(good.title))
+            print('\tBuy orders: {}'.format(len(buy_orders)))
+            print('\tSell orders: {}'.format(len(sell_orders)))
+        elif len(buy_orders) > len(sell_orders):
+            print('Pops need to sell more {} (buys: {} sells: {})'.format(good.title, len(buy_orders), len(sell_orders)))
+        elif len(buy_orders) < len(sell_orders):
+            print('Pops need to buy more {} (buys: {} sells: {})'.format(good.title, len(buy_orders), len(sell_orders)))
 
         total_buy_amount = sum([o.quantity for o in buy_orders])
         total_sell_amount = sum([o.quantity for o in sell_orders])
@@ -166,7 +181,7 @@ class Market:
         # grouped into their pop_type
         for pop_type, pops in groupby(self.pops, lambda x: x.pop_type):
             all_profits = [p.profit for p in pops]
-            self.history.profit.add(pop_type, all_profits)
+            self.history.profit.extend(pop_type, all_profits)
 
 
 
@@ -196,18 +211,33 @@ class Market:
             buys = self.history.buy_orders.average(good, day_range=day_range)
             sells = self.history.sell_orders.average(good, day_range=day_range)
 
-            if buys == 0 and sells == 0:
+            if buys == 0 and sells > 0:
                 # make a fake supply of 0.5 for each unit to avoid
                 # an infinite ratio of supply to demand
                 buys = 0.5
 
-            ratio = sells / buys
+            if buys == 0 and sells == 0:
+                ratio = 0
+            else:
+                ratio = sells / buys
 
             if ratio > minimum and ratio > best_ratio:
                 best_ratio = ratio
                 best_good = good
 
         return best_good
+
+    def decide_new_pop_type(self, pop):
+        "Decide a new pop_type for a Pop"
+        best_poptype = self.most_profitable_pop_type()
+        best_good = self.most_demanded_good()
+
+        if best_good is not None:
+            best_poptype = GOOD_POPTYPE_MAP[best_good]
+
+        pop.change_pop_type(best_poptype)
+        pop.money = 2 # create $10 out of nowhere
+        print("Pop {} ({}) is bankrupt. Switching to {}".format(pop.id, pop.pop_type.title, best_poptype.title))
 
     def most_cheap_good(self, day_range, exclude=None):
         """
@@ -247,10 +277,10 @@ class Market:
 
         return best_good
 
-    def most_profitable_pop_type(self, day_range):
+    def most_profitable_pop_type(self, day_range=10):
         "Returns the most profitable pop_type in a given day range"
         best = float('-inf')
-        best_pop_type
+        best_pop_type = None
 
         for pop_type in PopType.all():
             avg_profit = self.history.profit.average(pop_type, day_range=day_range)
@@ -279,6 +309,8 @@ class Market:
         "Simulate a round of trading between the agents(Pops) at this Market"
 
         for pop in self.location.pops:
+            print("\nPop {} ({}):".format(pop.pop_type.title, pop.id))
+            print("Inventory: {}".format(pop.inventory.display()))
 
             # perform each Pop's production
             pop.money_yesterday = pop.money
@@ -294,12 +326,16 @@ class Market:
         # resolve all offers for each Good
         for pop in self.location.pops:
             if pop.money < 0:
-                pop.bankrupt = True
+                # change to the most profitable pop type
+                # unless there's an underserved market
+                self.decide_new_pop_type(pop)
+
+
+
 
     def export(self):
         "Export the Market data as it currently exists"
         orders_for = lambda l, g: [o.export() for o in l[g]]
         return {
-            'buy_orders': [{'good': good.ref(), 'orders': orders_for(self.buy_orders, good)} for good in Good.all()],
-            'sell_orders': [{'good': good.ref(), 'orders': orders_for(self.sell_orders, good)} for good in Good.all()]
+            'history': [{'good': good.ref(), 'data': self.history.export(good, 1)} for good in Good.all()]
         }
