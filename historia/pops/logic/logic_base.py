@@ -21,19 +21,19 @@ class LogicBase:
     def charge_idle_money(self):
         "Change a Pop's money"
         charge = 2
-        print("{} charged {} for being idle".format(self.pop.pop_type.title, charge))
+        # print("{} charged {} for being idle".format(self.pop.pop_type.title, charge))
         self.pop.money -= charge
 
     def consume(self, good, amount, chance=1):
         "Consumes a good in a chance"
-        print("{} consumed {} {}".format(self.pop.pop_type.title, amount, good.title))
+        # print("{} consumed {} {}".format(self.pop.pop_type.title, amount, good.title))
         if random() <= chance:
             # print('consume', good, amount)
             return self.pop.inventory.subtract(good, amount)
 
     def produce(self, good, amount, chance=1):
         "Produces a good in a chance"
-        print("{} produced {} {}".format(self.pop.pop_type.title, amount, good.title))
+        # print("{} produced {} {}".format(self.pop.pop_type.title, amount, good.title))
         if random() <= chance:
             # print('produce', good, amount)
             return self.pop.inventory.add(good, amount)

@@ -16,7 +16,7 @@ class FarmerLogic(LogicBase):
             self.produce(Good.grain, 4)
             self.consume(Good.bread, 1)
             self.consume(Good.timber, 1)
-            self.consume(Good.tools, 1, 0.1)
+            self.consume(Good.tools, 1, 0.2)
         else:
             # tools and timber
             self.produce(Good.grain, 2)

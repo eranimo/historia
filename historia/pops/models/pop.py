@@ -21,6 +21,7 @@ class Pop(object):
         language (Language)
         job      (Job)
         """
+        self.bankrupt_times = 0
         self.province = province
         self.id = unique_id('po')
 
@@ -34,11 +35,11 @@ class Pop(object):
         self.bankrupt = False
 
         # set inventory and ideal amounts
-        self.inventory = Inventory(200)
+        self.inventory = Inventory(50)
         for item in self.pop_type.start_inventory:
             self.inventory.add(item['good'], item['amount'])
 
-        self.change_pop_type(pop_type)
+        self.update_ideal_inventory()
 
         # a dictionary of Goods to PriceRanges
         # represents the price range the agent considers valid for each Good
@@ -48,6 +49,9 @@ class Pop(object):
         # represents the prices of the good that the Pop has observed
         # during the time they have been trading
         self.observed_trading_range = {}
+
+        self.successful_trades = 0
+        self.failed_trades = 0
 
 
         # make some fake initial data
@@ -61,15 +65,17 @@ class Pop(object):
             # generate fake price belief
             self.price_belief[good] = PriceRange(avg_price * 0.5, avg_price * 1.5)
 
-        self.successful_trades = 0
-        self.failed_trades = 0
-
-    def change_pop_type(self, pop_type):
-        self.pop_type = pop_type
-
+    def update_ideal_inventory(self):
         # update ideal
         for item in self.pop_type.ideal_inventory:
             self.inventory.set_ideal(item['good'], item['amount'])
+
+    def handle_bankruptcy(self, pop_type):
+        self.pop_type = pop_type
+        self.bankrupt_times += 1
+        self.money = 2
+
+        self.update_ideal_inventory()
 
 
     # Economic methods
@@ -155,7 +161,7 @@ class Pop(object):
             sell_amount = surplus
             order = self.create_sell_order(good, surplus)
             if order:
-                print('{} sells {} {}'.format(self.pop_type.title, sell_amount, good.name))
+                # print('{} sells {} {}'.format(self.pop_type.title, sell_amount, good.name))
                 self.market.sell(order)
         else: # buy more
             shortage = self.inventory.shortage(good)
@@ -172,7 +178,7 @@ class Pop(object):
                 if limit > 0:
                     order = self.create_buy_order(good, limit)
                     if order:
-                        print('{} buys {} {}'.format(self.pop_type.title, limit, good.name))
+                        # print('{} buys {} {}'.format(self.pop_type.title, limit, good.name))
                         self.market.buy(order)
             # else:
             #     print("{} has no shortage of {} (has shortage: {})".format(self.pop_type.title, good.title, shortage))
@@ -241,10 +247,10 @@ class Pop(object):
                 wobble *= 2
             # all other cases
             else:
-                buys = self.market.history.buy_orders.average(good, 1)
                 sells = self.market.history.sell_orders.average(good, 1)
+                buys = self.market.history.buy_orders.average(good, 1)
 
-                supply_vs_demand = (buys - sells) / (buys + sells)
+                supply_vs_demand = (sells - buys) / (sells + buys)
 
                 if supply_vs_demand > SIG_IMBALANCE or supply_vs_demand < -SIG_IMBALANCE:
                     # too much supply? lower bid lower to sell faster
@@ -288,4 +294,5 @@ class Pop(object):
             'money_yesterday': self.money_yesterday,
             'successful_trades': self.successful_trades,
             'failed_trades': self.failed_trades,
+            'bankrupt_times': self.bankrupt_times,
         }

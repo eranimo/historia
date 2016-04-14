@@ -30,6 +30,9 @@ class TradeHistoryLog:
         return 0
 
 
+def lround(l, p):
+    return [round(i, 2) for i in l]
+
 class TradeHistory:
     prices = TradeHistoryLog('prices')
     buy_orders = TradeHistoryLog('buy_orders')
@@ -46,9 +49,9 @@ class TradeHistory:
 
     def export(self, good, days=30):
         return {
-            'prices': self.prices.record[good][-days:],
-            'buy_orders': self.buy_orders.record[good][-days:],
-            'sell_orders': self.sell_orders.record[good][-days:],
-            'trades': self.trades.record[good][-days:],
-            'profit': self.profit.record[good][-days:]
+            'prices': lround(self.prices.record[good][-days:], 2),
+            'buy_orders': lround(self.buy_orders.record[good][-days:], 2),
+            'sell_orders': lround(self.sell_orders.record[good][-days:], 2),
+            'trades': lround(self.trades.record[good][-days:], 2),
+            'profit': lround(self.profit.record[good][-days:], 2)
         }

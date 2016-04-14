@@ -14,7 +14,7 @@ class BlacksmithLogic(LogicBase):
         else:
             # 1 iron + 1 lumber = 1 tool
             self.produce(Good.tools, 1)
-            self.consume(Good.iron, 1)
+            self.consume(Good.iron, 2)
             self.consume(Good.lumber, 1)
 
             # consume bread

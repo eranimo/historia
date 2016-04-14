@@ -53,7 +53,7 @@ class Historia(object):
 
         # set the current_day
         self.current_day = self.start_date
-        self.end_day = self.start_date.replace(days=+30) # self.run_months)
+        self.end_day = self.start_date.replace(days=+30*2) # self.run_months)
 
         # list of all countries that have ever existed
         self.countries = []
@@ -97,7 +97,8 @@ class Historia(object):
 
         while self.current_day <= self.end_day:
             date = '{}'.format(self.current_day.format('dddd MMMM D, YYYY'))
-            print('→ {}:'.format(colored(date, 'blue', attrs=['bold', 'underline'])))
+            if self.current_day.datetime.day == 1:
+                print('→ {}:'.format(colored(date, 'blue', attrs=['bold', 'underline'])))
 
             # get every market in the world
 

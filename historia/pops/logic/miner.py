@@ -12,10 +12,10 @@ class MinerLogic(LogicBase):
             self.charge_idle_money()
         elif tools is not None:
             # no tools
-            self.produce(Good.iron_ore, 2)
+            self.produce(Good.iron_ore, 4)
             self.consume(Good.bread, 1)
             self.consume(Good.tools, 1, 0.1)
         else:
             # tools and bread
-            self.produce(Good.iron_ore, 1)
+            self.produce(Good.iron_ore, 2)
             self.consume(Good.bread, 1)

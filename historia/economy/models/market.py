@@ -19,6 +19,7 @@ GOOD_POPTYPE_MAP = {
     Good.bread: PopType.baker
 }
 
+DEBUG = False
 
 class Market:
     """
@@ -83,14 +84,16 @@ class Market:
 
         # lowest sell price first
         sell_orders.sort(key=lambda o: o.price, reverse=False)
-        if len(buy_orders) and len(sell_orders):
-            print('Resolve Orders for {}'.format(good.title))
-            print('\tBuy orders: {}'.format(len(buy_orders)))
-            print('\tSell orders: {}'.format(len(sell_orders)))
-        elif len(buy_orders) > len(sell_orders):
-            print('Pops need to sell more {} (buys: {} sells: {})'.format(good.title, len(buy_orders), len(sell_orders)))
-        elif len(buy_orders) < len(sell_orders):
-            print('Pops need to buy more {} (buys: {} sells: {})'.format(good.title, len(buy_orders), len(sell_orders)))
+
+        if DEBUG:
+            if len(buy_orders) and len(sell_orders):
+                print('Resolve Orders for {}'.format(good.title))
+                print('\tBuy orders: {}'.format(len(buy_orders)))
+                print('\tSell orders: {}'.format(len(sell_orders)))
+            elif len(buy_orders) > len(sell_orders):
+                print('Pops need to sell more {} (buys: {} sells: {})'.format(good.title, len(buy_orders), len(sell_orders)))
+            elif len(buy_orders) < len(sell_orders):
+                print('Pops need to buy more {} (buys: {} sells: {})'.format(good.title, len(buy_orders), len(sell_orders)))
 
         total_buy_amount = sum([o.quantity for o in buy_orders])
         total_sell_amount = sum([o.quantity for o in sell_orders])
@@ -104,8 +107,9 @@ class Market:
         while len(buy_orders) > 0 and len(sell_orders) > 0:
             buy_order = buy_orders[0]
             sell_order = sell_orders[0]
-            print('\t\tBuy:', buy_order)
-            print('\t\tSell:', sell_order)
+            if DEBUG:
+                print('\t\tBuy:', buy_order)
+                print('\t\tSell:', sell_order)
 
             # quantity traded. Defined as the mininum of both orders quantity
             # in the future this may be improved
@@ -115,7 +119,8 @@ class Market:
             clearing_price = (buy_order.price + sell_order.price) / 2.0
             total_price = quantity_traded * clearing_price
 
-            print('\t\tPrice: {}'.format(total_price))
+            if DEBUG:
+                print('\t\tPrice: {}'.format(total_price))
 
             if quantity_traded > 0:
                 # trade the goods and money, recording this in the order
@@ -145,7 +150,8 @@ class Market:
             if buy_order.quantity == 0:
                 del buy_orders[0]
 
-            print('\n')
+            if DEBUG:
+                print('\n')
 
         # reject all orders which don't have a matching order
         while len(buy_orders) > 0:
@@ -199,6 +205,17 @@ class Market:
         else:
             raise Exception('Must be a sell order')
 
+    def decide_new_pop_type(self, pop):
+        "Decide a new pop_type for a Pop when they go bankrupt"
+        best_poptype = self.most_profitable_pop_type()
+        best_good = self.most_demanded_good(day_range=3)
+        if best_good is not None:
+            best_poptype = GOOD_POPTYPE_MAP[best_good]
+
+        if DEBUG:
+            print("Pop {} ({}) is bankrupt. Switching to {}".format(pop.id, pop.pop_type.title, best_poptype.title))
+        pop.handle_bankruptcy(best_poptype)
+
     def most_demanded_good(self, minimum=1.5, day_range=10):
         """
         Get the good with the highest demand/supply ratio over time
@@ -208,36 +225,23 @@ class Market:
         best_good = None
         best_ratio = float('-inf')
         for good in Good.all():
-            buys = self.history.buy_orders.average(good, day_range=day_range)
             sells = self.history.sell_orders.average(good, day_range=day_range)
+            buys = self.history.buy_orders.average(good, day_range=day_range)
 
-            if buys == 0 and sells > 0:
-                # make a fake supply of 0.5 for each unit to avoid
-                # an infinite ratio of supply to demand
-                buys = 0.5
+            if buys > 0 and sells > 0: # if this Good is traded in this Market
 
-            if buys == 0 and sells == 0:
-                ratio = 0
-            else:
-                ratio = sells / buys
+                if sells == 0 and buys > 0:
+                    # make a fake supply of 0.5 for each unit to avoid
+                    # an infinite ratio of supply to demand
+                    sells = 0.5
 
-            if ratio > minimum and ratio > best_ratio:
-                best_ratio = ratio
-                best_good = good
+                ratio = buys / sells
+
+                if ratio > minimum and ratio > best_ratio:
+                    best_ratio = ratio
+                    best_good = good
 
         return best_good
-
-    def decide_new_pop_type(self, pop):
-        "Decide a new pop_type for a Pop"
-        best_poptype = self.most_profitable_pop_type()
-        best_good = self.most_demanded_good()
-
-        if best_good is not None:
-            best_poptype = GOOD_POPTYPE_MAP[best_good]
-
-        pop.change_pop_type(best_poptype)
-        pop.money = 2 # create $10 out of nowhere
-        print("Pop {} ({}) is bankrupt. Switching to {}".format(pop.id, pop.pop_type.title, best_poptype.title))
 
     def most_cheap_good(self, day_range, exclude=None):
         """
@@ -307,10 +311,13 @@ class Market:
 
     def simulate(self):
         "Simulate a round of trading between the agents(Pops) at this Market"
+        pops_grouped = groupby(self.pops, lambda x: x.pop_type)
+        # print(', '.join(["{}: {}".format(pop_type.title, len(list(pops))) for pop_type, pops in pops_grouped]))
+
 
         for pop in self.location.pops:
-            print("\nPop {} ({}):".format(pop.pop_type.title, pop.id))
-            print("Inventory: {}".format(pop.inventory.display()))
+            # print("\nPop {} ({}):".format(pop.pop_type.title, pop.id))
+            # print("Inventory: {}".format(pop.inventory.display()))
 
             # perform each Pop's production
             pop.money_yesterday = pop.money
