@@ -11,7 +11,7 @@ from historia.map import WorldMap
 from historia.world import give_hex_natural_resources
 from historia.log import HistoryLogger
 from historia.enums import HexType, DictEnum
-from historia.utils import ChangeStore, Change, Timer
+from historia.utils import Store, Change, Timer
 
 from termcolor import colored
 
@@ -53,7 +53,7 @@ class Historia(object):
 
         # set the current_day
         self.current_day = self.start_date
-        self.end_day = self.start_date.replace(days=+30*2) # self.run_months)
+        self.end_day = self.start_date.replace(days=+50) # self.run_months)
 
         # list of all countries that have ever existed
         self.countries = []
@@ -67,9 +67,9 @@ class Historia(object):
         self.logger = HistoryLogger(self)
 
         self.stores = {
-            'Country': ChangeStore(self.current_day),
-            'Province': ChangeStore(self.current_day),
-            'Pop': ChangeStore(self.current_day)
+            'Country': Store(self.current_day),
+            'Province': Store(self.current_day),
+            'Pop': Store(self.current_day)
         }
 
         # temp
@@ -82,7 +82,7 @@ class Historia(object):
         "Advance another day, updating the change stores"
         self.current_day = self.current_day.replace(days=+1)
         for storeName, store in self.stores.items():
-            store.commit()
+            store.update()
             store.next_day()
 
     def start(self):
@@ -97,8 +97,8 @@ class Historia(object):
 
         while self.current_day <= self.end_day:
             date = '{}'.format(self.current_day.format('dddd MMMM D, YYYY'))
-            if self.current_day.datetime.day == 1:
-                print('→ {}:'.format(colored(date, 'blue', attrs=['bold', 'underline'])))
+            # if self.current_day.datetime.day == 1:
+            print('→ {}:'.format(colored(date, 'blue', attrs=['bold', 'underline'])))
 
             # get every market in the world
 
@@ -107,6 +107,9 @@ class Historia(object):
                 m.simulate()
 
             self.next_day()
+
+        for storeName, store in self.stores.items():
+            store.update()
 
     def populate(self):
         """
@@ -138,7 +141,7 @@ class Historia(object):
             province.add_pops(pops)
             self.stores['Country'].add(country1)
             self.stores['Province'].add(province)
-            self.stores['Pop'].extend(pops)
+            self.stores['Pop'].add(pops)
             self.countries.append(country1)
 
         # with Timer("\tMaking another province in another day", debug=self.debug):

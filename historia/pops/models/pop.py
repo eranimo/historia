@@ -26,6 +26,7 @@ class Pop(object):
         self.id = unique_id('po')
 
         self.population = population
+        self.population_yesterday = 0
 
         self.pop_type = pop_type
 
@@ -69,6 +70,14 @@ class Pop(object):
         # update ideal
         for item in self.pop_type.ideal_inventory:
             self.inventory.set_ideal(item['good'], item['amount'])
+
+    def change_population(self, trade_success):
+        self.population_yesterday = self.population
+        if trade_success:
+            self.population += round(self.population * 0.01)
+        else:
+            self.population -= round(self.population * 0.002)
+
 
     def handle_bankruptcy(self, pop_type):
         self.pop_type = pop_type
@@ -289,6 +298,8 @@ class Pop(object):
     def export(self):
         return {
             'pop_type': self.pop_type.ref(),
+            'population': self.population,
+            'population_yesterday': self.population_yesterday,
             'inventory': self.inventory.export(),
             'money': self.money,
             'money_yesterday': self.money_yesterday,

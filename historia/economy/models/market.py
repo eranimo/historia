@@ -138,6 +138,9 @@ class Market:
                 buy_order.pop.successful_trades += 1
                 sell_order.pop.successful_trades += 1
 
+                buy_order.pop.change_population(True)
+                sell_order.pop.change_population(True)
+
                 # log some stuff
                 money_traded += total_price
                 units_traded += quantity_traded
@@ -158,12 +161,14 @@ class Market:
             buy_orders[0].pop.update_price_model(good, OrderType.buy_order, False)
             # update pop metrics
             buy_orders[0].pop.failed_trades += 1
+            buy_orders[0].pop.change_population(False)
             del buy_orders[0]
 
         while len(sell_orders) > 0:
             sell_orders[0].pop.update_price_model(good, OrderType.sell_order, False)
             # update pop metrics
             sell_orders[0].pop.failed_trades += 1
+            sell_orders[0].pop.change_population(False)
             del sell_orders[0]
 
         # update history

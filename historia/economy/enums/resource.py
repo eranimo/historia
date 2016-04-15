@@ -6,23 +6,23 @@ class Good(DictEnum):
     "A physical commodity consumed by Pops"
     __exports__ = ['title']
     # Raw
-    grain = { 'title': 'Grain' }
+    grain = { 'title': 'Grain', 'color': 'yellow' }
     # meat = { 'title': 'Meat'}
-    fish = { 'title': 'Fish' }
+    fish = { 'title': 'Fish', 'color': 'blue' }
     # fruit = { 'title': 'Fruit' }
     # vegetable = { 'title': 'Vegetable' }
-    iron_ore = { 'title': 'Iron Ore' }
-    timber = { 'title': 'Timber' }
+    iron_ore = { 'title': 'Iron Ore', 'color': 'gray' }
+    timber = { 'title': 'Timber', 'color': 'brown' }
     # tea = { 'title': 'Tea' }
     # wool = { 'title': 'Wool' }
     # cotton = { 'title': 'Cotton' }
 
     # Produced
-    iron = { 'title': 'Iron' }
-    tools = { 'title': 'Tools' }
-    bread = { 'title': 'Bread' }
+    iron = { 'title': 'Iron', 'color': 'orange' }
+    tools = { 'title': 'Tools', 'color': 'teal' }
+    bread = { 'title': 'Bread', 'color': 'violet' }
     # alcohol = { 'title': 'Alcohol' }
-    lumber = { 'title': 'Lumber' }
+    lumber = { 'title': 'Lumber', 'color': 'green' }
     # clothes = { 'title': 'Clothes' }
     # fabric = { 'title': 'Fabric' }
     # furnature = { 'title': 'Furnature' }

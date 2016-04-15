@@ -23,11 +23,12 @@ class PopType(DictEnum):
     #     'rgo_owner': False,
     #     'basic_needs': basic_needs
     # }
-    __exports__ = ['title']
+    __exports__ = ['title', 'color']
 
     # bread, lumber, tools -> grain
     farmer = {
         'title': 'Farmer',
+        'color': 'green',
         'logic': logic.farmer,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -44,6 +45,7 @@ class PopType(DictEnum):
     # bread, tools -> iron_ore
     miner = {
         'title': 'Miner',
+        'color': 'gray',
         'logic': logic.miner,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -58,6 +60,7 @@ class PopType(DictEnum):
     # bread, tools, timber -> lumber
     miller = {
         'title': 'Miller',
+        'color': 'yellow',
         'logic': logic.miller,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -74,6 +77,7 @@ class PopType(DictEnum):
     # bread, tools -> timber
     woodcutter = {
         'title': 'Woodcutter',
+        'color': 'brown',
         'logic': logic.woodcutter,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -88,6 +92,7 @@ class PopType(DictEnum):
     # bread, iron, lumber -> tools
     blacksmith = {
         'title': 'Blacksmith',
+        'color': 'black',
         'logic': logic.blacksmith,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -104,6 +109,7 @@ class PopType(DictEnum):
     # bread, iron_ore, tools -> iron
     refiner = {
         'title': 'Refiner',
+        'color': 'red',
         'logic': logic.refiner,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -120,6 +126,7 @@ class PopType(DictEnum):
     # grain -> bread
     baker = {
         'title': 'Baker',
+        'color': 'orange',
         'logic': logic.baker,
         'start_inventory': [
             {'good': Good.grain, 'amount': 1}
