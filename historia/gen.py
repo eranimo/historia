@@ -4,11 +4,10 @@ import arrow
 import json
 
 from historia.time import TimelineProperty
-from historia.country import Country, Province
+from historia.country import Country, Province, create_country
 from historia.pops import Pop, make_initial_pops, PopType
 from historia.economy import make_RGOs, RGOType, Good
 from historia.map import WorldMap
-from historia.world import give_hex_natural_resources
 from historia.log import HistoryLogger
 from historia.enums import HexType, DictEnum
 from historia.utils import Store, Change, Timer
@@ -53,7 +52,7 @@ class Historia(object):
 
         # set the current_day
         self.current_day = self.start_date
-        self.end_day = self.start_date.replace(days=+50) # self.run_months)
+        self.end_day = self.start_date.replace(days=+100) # self.run_months)
 
         # list of all countries that have ever existed
         self.countries = []
@@ -102,6 +101,10 @@ class Historia(object):
 
             # get every market in the world
 
+            if self.current_day.datetime.day == 10:
+                for c in self.countries:
+                    c.settle_frontier()
+
             for m in markets:
                 # perform production and trading
                 m.simulate()
@@ -118,31 +121,17 @@ class Historia(object):
             Make random pops for each country
         """
 
+        NUM_COUNTRIES = 2 # random.randint(1, 4)
+
         # find a suitable hex
-        with Timer("Finding suitable hexes", debug=self.debug):
-            favorable_hexes = sorted(self.map.hexes, key=lambda h: h.favorability, reverse=True)
-            start_hex = favorable_hexes[0]
+        with Timer("Creating initial data", debug=self.debug):
 
-        # give the hex some natural resources
-        with Timer("\tMaking natural resources", debug=self.debug):
-            give_hex_natural_resources(start_hex)
-            if self.debug:
-                echo(start_hex.natural_resources)
-
-        with Timer("\tCreating a province and country", debug=self.debug):
-            country1 = Country(self, start_hex)
-            country1.name = 'Elysium'
-
-            # Give that province pops and RGOs
-            province = country1.provinces[0]
-
-        with Timer("\tMaking Pops and RGOs", debug=self.debug):
-            pops = make_initial_pops(province)
-            province.add_pops(pops)
-            self.stores['Country'].add(country1)
-            self.stores['Province'].add(province)
-            self.stores['Pop'].add(pops)
-            self.countries.append(country1)
+            for i in range(NUM_COUNTRIES):
+                country, provinces, pops = create_country(self, self.map)
+                self.stores['Country'].add(country)
+                self.stores['Province'].add(provinces)
+                self.stores['Pop'].add(pops)
+                self.countries.append(country)
 
         # with Timer("\tMaking another province in another day", debug=self.debug):
         #     self.next_day()

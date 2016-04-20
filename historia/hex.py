@@ -54,6 +54,7 @@ class Hex:
         """ Is this hex owned by a second-level political unit? """
         return self.owner is not None
 
+    @property
     def type(self):
         """ Return the type of the Hex """
         if self.altitude < self.world_map.details.get('sea_level'):
@@ -90,7 +91,7 @@ class Hex:
         return score
 
     def __repr__(self):
-        return "<Hex: x={} y={} altitude={} biome={}>".format(self.x, self.y, self.altitude, self.biome.title)
+        return "<Hex: x={} y={} altitude={} biome={} is_land={} owner={}>".format(self.x, self.y, self.altitude, self.biome.title, self.is_land, self.owner)
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y

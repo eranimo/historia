@@ -19,6 +19,10 @@ class WorldMap:
             for y, h in enumerate(row):
                 self.hexes.append(Hex(self, h))
 
+    @property
+    def unowned_hexes(self):
+        return [h for h in self.hexes if h.owner is None]
+
     def find_hex(self, x, y):
         for h in self.hexes:
             if h.x == x and h.y == y:

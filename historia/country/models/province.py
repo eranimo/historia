@@ -40,21 +40,21 @@ class Province(object):
     @property
     def neighbors(self):
         """ Return neighboring counties """
-        return [h.owner for h in self.hex.neighbors if h.owned]
+        return [h[0].owner for h in self.hex.neighbors if h[0].owner]
 
     @property
     def is_border(self):
-        """ Returns True if any county neighbors are owned land hexes """
-        return any([h.owned for h in self.hex.neighbors if h.is_land])
+        """ Returns True if any county neighbors are owner land hexes """
+        return any([h[0].owner for h in self.hex.neighbors if h[0].is_land])
 
     @property
-    def is_frontier_county(self):
-        """ Returns True if any hex neighbors are unowned land hexes """
-        return any([not h.owned for h in self.hex.neighbors if h.is_land])
+    def is_frontier(self):
+        """ Returns True if any hex neighbors are unowner land hexes """
+        return any([not h[0].owner for h in self.hex.neighbors if h[0].is_land])
 
     def get_frontier_hexes(self):
-        """ Gets the unowned land hexes neighboring this hex """
-        return [h for h in self.hex.neighbors if h.is_land and not h.owned]
+        """ Gets the unowner land hexes neighboring this hex """
+        return [h[0] for h in self.hex.neighbors if h[0].is_land and h[0].owner is None]
 
     @property
     def is_coastal(self):
