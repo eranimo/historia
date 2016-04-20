@@ -1,6 +1,8 @@
+import random
 from historia.utils import unique_id, random_country_colors
 from historia.country.models.province import Province
 from historia.log import LogAction
+from historia.pops import make_initial_pops
 
 class Country(object):
     """
@@ -48,6 +50,17 @@ class Country(object):
         province = Province(self.manager, hex_inst, self, is_capital=False)
         self.provinces.append(province)
         return province
+
+
+    def settle_frontier(self):
+        frontier_provinces = [p for p in self.provinces if p.is_frontier]
+
+        selected = random.choice(frontier_provinces)
+        new_province = self.settle_hex(selected.get_frontier_hexes()[0])
+        pops = make_initial_pops(new_province)
+        new_province.add_pops(pops)
+        print('added ', new_province)
+        self.manager.stores['Province'].add(new_province)
 
     @property
     def pops(self):

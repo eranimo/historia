@@ -36,7 +36,7 @@ class Pop(object):
         self.bankrupt = False
 
         # set inventory and ideal amounts
-        self.inventory = Inventory(50)
+        self.inventory = Inventory(150)
         for item in self.pop_type.start_inventory:
             self.inventory.add(item['good'], item['amount'])
 
