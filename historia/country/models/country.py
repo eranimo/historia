@@ -3,6 +3,8 @@ from historia.utils import unique_id, random_country_colors
 from historia.country.models.province import Province
 from historia.log import LogAction
 from historia.pops import make_initial_pops
+from historia.namegen import random_word
+from historia.world import give_hex_natural_resources
 
 class Country(object):
     """
@@ -13,6 +15,8 @@ class Country(object):
         super(self.__class__, self).__init__()
         self.manager = manager
         self.id = unique_id('co')
+
+        self.name = random_word()
 
         # ancestor country (mother country)
         # The country this country was formed out of
@@ -43,8 +47,6 @@ class Country(object):
             'border_color': border_color.hex
         }
 
-        self.name = ''
-
     def settle_hex(self, hex_inst):
         "Settles a new hex, creating a province and returning it"
         province = Province(self.manager, hex_inst, self, is_capital=False)
@@ -54,13 +56,15 @@ class Country(object):
 
     def settle_frontier(self):
         frontier_provinces = [p for p in self.provinces if p.is_frontier]
-
         selected = random.choice(frontier_provinces)
-        new_province = self.settle_hex(selected.get_frontier_hexes()[0])
+        new_hex = selected.get_frontier_hexes()[0]
+        give_hex_natural_resources(new_hex)
+        new_province = self.settle_hex(new_hex)
         pops = make_initial_pops(new_province)
         new_province.add_pops(pops)
         print('added ', new_province)
         self.manager.stores['Province'].add(new_province)
+        self.manager.stores['Pop'].add(pops)
 
     @property
     def pops(self):

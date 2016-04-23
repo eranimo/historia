@@ -4,6 +4,10 @@ class LogicBase:
     def __init__(self, pop):
         self.pop = pop
 
+    @property
+    def can_work(self):
+        return True
+
     def has_good(self, good, amount):
         "Returns True if the Pop has a particular Good in their inventory"
         inv = self.pop.inventory.get(good)

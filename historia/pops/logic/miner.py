@@ -1,7 +1,11 @@
 from historia.pops.logic.logic_base import LogicBase
-from historia.economy.enums.resource import Good
+from historia.economy.enums.resource import Good, NaturalResource
 
 class MinerLogic(LogicBase):
+
+    @property
+    def can_work(self):
+        return self.pop.province.hex.has_natural_resource(NaturalResource.iron)
 
     def perform(self):
         bread = self.get_good(Good.bread)

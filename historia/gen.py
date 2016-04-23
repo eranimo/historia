@@ -92,9 +92,9 @@ class Historia(object):
         - loop over countries
         - loop over pops
         """
-        markets = [p.market for c in self.countries for p in c.provinces]
 
         while self.current_day <= self.end_day:
+            markets = [p.market for c in self.countries for p in c.provinces]
             date = '{}'.format(self.current_day.format('dddd MMMM D, YYYY'))
             # if self.current_day.datetime.day == 1:
             print('→ {}:'.format(colored(date, 'blue', attrs=['bold', 'underline'])))
@@ -161,7 +161,7 @@ class Historia(object):
 
     def export(self, output_file):
         "Export the data to JSON"
-        with open(output_file, 'w') as outfile:
+        with open(output_file, 'a+') as outfile:
             data = {
                 'details': self.map_data.get('details'),
                 'geoforms': self.map_data.get('geoforms'),

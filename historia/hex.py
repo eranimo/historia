@@ -49,6 +49,9 @@ class Hex:
 
         self.natural_resources = []
 
+    def has_natural_resource(self, nresource):
+        return nresource in self.natural_resources
+
     @property
     def owned(self):
         """ Is this hex owned by a second-level political unit? """
