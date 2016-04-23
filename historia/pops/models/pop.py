@@ -67,33 +67,36 @@ class Pop(object):
             self.price_belief[good] = PriceRange(avg_price * 0.5, avg_price * 1.5)
 
     def update_ideal_inventory(self):
-        # update ideal
+        "Update ideal inventory"
         for item in self.pop_type.ideal_inventory:
             self.inventory.set_ideal(item['good'], item['amount'])
 
     def change_population(self, trade_success):
+        "Change the population based off the trade"
         self.population_yesterday = self.population
         if trade_success:
-            self.population += round(self.population * 0.01)
+            self.population += round(self.population * 0.002)
         else:
             self.population -= round(self.population * 0.002)
 
 
     def handle_bankruptcy(self, pop_type):
+        "Change job, create money out of thin air, update ideal inventory"
         self.pop_type = pop_type
         self.bankrupt_times += 1
         self.money = 2
-
         self.update_ideal_inventory()
 
 
     # Economic methods
     @property
     def market(self):
+        "Get the market instance"
         return self.province.market
 
     @property
     def profit(self):
+        "Determine profit"
         return self.money - self.money_yesterday
 
     def perform_production(self):

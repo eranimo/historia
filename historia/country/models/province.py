@@ -2,6 +2,7 @@ from historia.utils import unique_id
 from historia.country.enums import PrimaryDivisionTypes, GovernmentType, GovernmentStructure
 from historia.economy.models import Market
 from historia.log import LogAction
+from historia.namegen import random_word
 
 
 class Province(object):
@@ -16,19 +17,20 @@ class Province(object):
         self.manager = manager
         self.id = unique_id('pr')
 
+        self.name = random_word()
+
         self.hex = location
         self.owner = owner
         self.hex.owner = self
         self.is_capital = is_capital
+
+        self.date_founded = self.manager.current_day
 
         # economy
         self.market = Market(self.manager, self)
         self.pops = []
         self.RGOs = []
 
-        self.manager.logger.log(self, {
-            'owner': owner.id
-        })
 
     def __repr__(self):
         return "<Province id={} owner={}>".format(self.id, self.owner)
@@ -67,6 +69,8 @@ class Province(object):
     def export(self):
         return {
             'hex': self.hex.coords,
+            'name': self.name,
+            'date_founded': self.date_founded.format("YYYY-MM-DD"),
             'owner': self.owner.id,
             'is_capital': self.is_capital,
             'market': self.market.export(),

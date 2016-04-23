@@ -1,5 +1,5 @@
 from historia.pops.logic.logic_base import LogicBase
-from historia.economy.enums.resource import Good
+from historia.economy.enums.resource import Good, NaturalResource
 
 class MillerLogic(LogicBase):
 

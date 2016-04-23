@@ -4,7 +4,7 @@ from historia.enums.dict_enum import DictEnum
 
 class Good(DictEnum):
     "A physical commodity consumed by Pops"
-    __exports__ = ['title']
+    __exports__ = ['title', 'color']
     # Raw
     grain = { 'title': 'Grain', 'color': 'yellow' }
     # meat = { 'title': 'Meat'}
