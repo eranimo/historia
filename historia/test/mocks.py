@@ -20,7 +20,8 @@ def random_biome():
 
 mock_map_data = {
     'details': {
-        'size': 3
+        'size': 3,
+        'sea_level': 4
     },
     # 4 5 4
     #  3 5 3

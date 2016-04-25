@@ -17,18 +17,18 @@ class TestEconomy(TestCase):
         province.add_pops([farmer])
 
         farmer.money += 10
-        self.assertEqual(farmer.money, 110)
+        self.assertEqual(farmer.money, 20)
         farmer.money -= 10
-        self.assertEqual(farmer.money, 100)
+        self.assertEqual(farmer.money, 10)
 
     def test_idle_fee(self):
         farmer = make_mock_pop(province, PopType.farmer)
         province.add_pops([farmer])
 
         farmer.inventory.set(Good.timber, 0)
-        self.assertEqual(farmer.money, 100)
+        self.assertEqual(farmer.money, 10)
         farmer.perform_production()
-        self.assertEqual(farmer.money, 99)
+        self.assertEqual(farmer.money, 8)
 
     def test_production(self):
         farmer = make_mock_pop(province, PopType.farmer)
