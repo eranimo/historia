@@ -27,7 +27,7 @@ class TestInventory(TestCase):
         inv.add(Good.iron_ore, 2, 2)
         self.assertEqual(len(inv.get(Good.iron_ore)), 3)
 
-        self.assertEqual(inv.get_amount(Good.fabric), 0)
+        self.assertEqual(inv.get_amount(Good.fish), 0)
 
     def test_subtract(self):
         inv = Inventory(10)
