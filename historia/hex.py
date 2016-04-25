@@ -54,7 +54,7 @@ class Hex:
 
     @property
     def owned(self):
-        """ Is this hex owned by a second-level political unit? """
+        """ Is this hex owned by a province? """
         return self.owner is not None
 
     @property
@@ -75,13 +75,13 @@ class Hex:
     @property
     def favorability(self):
         """
-            Hexes with a higher settlement score will be settled first.
+        Hexes with a higher settlement score will be settled first.
 
-            Criteria for a higher score:
-                - rivers
-                - lots of water
-                - fertile land
-                - resources
+        Criteria for a higher score:
+            - rivers
+            - lots of water
+            - fertile land
+            - resources
         """
         if self.is_water:
             return 0
@@ -177,7 +177,7 @@ class Hex:
 
     @property
     def neighbors(self):
-        """ Surrounding hexes with HexEdge enums """
+        "Surrounding hexes with HexEdge enums"
         if self._neighbors is not None:
             return self._neighbors
         else:

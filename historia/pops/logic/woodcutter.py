@@ -14,7 +14,7 @@ class WoodcutterLogic(LogicBase):
         bread = self.get_good(Good.bread)
         tools = self.get_good(Good.tools)
 
-        if bread is None and self.can_work:
+        if bread is None or not self.can_work:
             # fine $2 for being idle
             self.charge_idle_money()
         elif tools is None:

@@ -262,18 +262,21 @@ class Pop(object):
                 sells = self.market.history.sell_orders.average(good, 1)
                 buys = self.market.history.buy_orders.average(good, 1)
 
-                supply_vs_demand = (sells - buys) / (sells + buys)
+                # TODO: figure out why this is sometimes 0
+                if sells + buys > 0:
 
-                if supply_vs_demand > SIG_IMBALANCE or supply_vs_demand < -SIG_IMBALANCE:
-                    # too much supply? lower bid lower to sell faster
-                    # too much demand? raise price to buy faster
+                    supply_vs_demand = (sells - buys) / (sells + buys)
 
-                    new_mean = public_mean_price * (1 - supply_vs_demand)
-                    delta_to_mean = mean - new_mean
+                    if supply_vs_demand > SIG_IMBALANCE or supply_vs_demand < -SIG_IMBALANCE:
+                        # too much supply? lower bid lower to sell faster
+                        # too much demand? raise price to buy faster
 
-                    # shift the price belief to the new price mean
-                    belief.low -= delta_to_mean / 2
-                    belief.high -= delta_to_mean / 2
+                        new_mean = public_mean_price * (1 - supply_vs_demand)
+                        delta_to_mean = mean - new_mean
+
+                        # shift the price belief to the new price mean
+                        belief.low -= delta_to_mean / 2
+                        belief.high -= delta_to_mean / 2
 
 
             # decrease belief's certainty since we've just changed it (we could be wrong)

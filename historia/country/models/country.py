@@ -27,12 +27,6 @@ class Country(object):
         capital = Province(self.manager, initial_hex, self, is_capital=True)
         self.provinces = [capital]
         self.capital = capital
-        self.manager.logger.log(self, {
-            'capital': capital.id
-        })
-        self.manager.logger.log(self, {
-            'provinces': capital.id
-        }, LogAction.extend)
 
         # Vassal countries under this country
         self.vassals = []
@@ -47,14 +41,21 @@ class Country(object):
             'border_color': border_color.hex
         }
 
+        self.group_provinces = []
+
     def settle_hex(self, hex_inst):
         "Settles a new hex, creating a province and returning it"
         province = Province(self.manager, hex_inst, self, is_capital=False)
-        self.provinces.append(province)
+        self.add_province(province)
         return province
 
+    def add_province(self, province):
+        "Add a province to this country"
+        self.provinces.append(province)
+        self.detect_groups()
 
     def settle_frontier(self):
+        "Settle a random unowned frontier hex"
         frontier_provinces = [p for p in self.provinces if p.is_frontier]
         selected = random.choice(frontier_provinces)
         new_hex = selected.get_frontier_hexes()[0]
@@ -63,15 +64,57 @@ class Country(object):
         pops = make_initial_pops(new_province)
         new_province.add_pops(pops)
         print('added ', new_province)
+
         self.manager.stores['Province'].add(new_province)
         self.manager.stores['Pop'].add(pops)
 
     @property
     def pops(self):
+        "Get all Pops in all of the Provinces in this country"
         pops = []
         for p in self.provinces:
             pops.extend(p.pops)
         return pops
+
+    def detect_groups(self):
+        "Detects and categorizes contiguous groupings of provinces, returning their midpoints"
+        current_province = self.provinces[0]
+        groups = [self.provinces]
+
+        # provinces = set(self.provinces)
+        #
+        #
+        # # compile list of province groups
+        # while len(provinces) > 0:
+        #     neighbors = [p for p in current_province.owned_neighbors if p in provinces]
+        #     if len(neighbors) > 0:
+        #         provinces.remove(current_province)
+        #         current_province = neighbors[0]
+        #         groups[-1].append(current_province)
+        #     else:
+        #         # start a new group
+        #         new_prov = provinces.pop()
+        #         current_province = new_prov
+        #         groups[-1].append(current_province)
+        #         # groups.append([new_prov])
+        #
+
+        coordinates = []
+
+        # convert list of province groups into coordinate list
+        for g in groups:
+            x = 0
+            y = 0
+            for p in g:
+                x += p.hex.x
+                y += p.hex.y
+
+            x /= len(g)
+            y /= len(g)
+            coordinates.append({ 'x_coord': x, 'y_coord': y })
+
+        self.group_provinces = coordinates
+
 
     def __repr__(self):
         return "<Country: name={} id={}>".format(self.name, self.id)
@@ -91,5 +134,6 @@ class Country(object):
         return {
             'display': self.display,
             'name': self.name,
+            'groups': self.group_provinces,
             'provinces': [p.id for p in self.provinces]
         }
