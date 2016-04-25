@@ -16,7 +16,7 @@ from termcolor import colored
 
 default_params = {
     'start_date': arrow.get(1, 1, 1),
-    'run_months': 1
+    'run_days': 100
 }
 
 from pprint import PrettyPrinter
@@ -52,7 +52,8 @@ class Historia(object):
 
         # set the current_day
         self.current_day = self.start_date
-        self.end_day = self.start_date.replace(days=+30) # self.run_months)
+        self.end_day = self.start_date.replace(days=+self.run_days)
+        print("Running for {} days".format(self.run_days))
 
         # list of all countries that have ever existed
         self.countries = []
