@@ -23,7 +23,7 @@ class FarmerLogic(LogicBase):
         timber = self.get_good(Good.timber)
         tools = self.get_good(Good.tools)
 
-        if timber is None or bread is None and self.can_work:
+        if timber is None or bread is None or not self.can_work:
             # fine $2 for being idle
             self.charge_idle_money()
         elif tools is not None:

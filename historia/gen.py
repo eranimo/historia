@@ -52,7 +52,7 @@ class Historia(object):
 
         # set the current_day
         self.current_day = self.start_date
-        self.end_day = self.start_date.replace(days=+100) # self.run_months)
+        self.end_day = self.start_date.replace(days=+30) # self.run_months)
 
         # list of all countries that have ever existed
         self.countries = []
@@ -161,7 +161,7 @@ class Historia(object):
 
     def export(self, output_file):
         "Export the data to JSON"
-        with open(output_file, 'a+') as outfile:
+        with open(output_file, 'w') as outfile:
             data = {
                 'details': self.map_data.get('details'),
                 'geoforms': self.map_data.get('geoforms'),

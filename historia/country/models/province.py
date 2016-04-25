@@ -20,8 +20,8 @@ class Province(object):
         self.name = random_word()
 
         self.hex = location
-        self.owner = owner
         self.hex.owner = self
+        self.owner = owner
         self.is_capital = is_capital
 
         self.date_founded = self.manager.current_day
@@ -41,8 +41,13 @@ class Province(object):
 
     @property
     def neighbors(self):
-        """ Return neighboring counties """
+        """ Return neighboring provinces """
         return [h[0].owner for h in self.hex.neighbors if h[0].owner]
+
+    @property
+    def owned_neighbors(self):
+        """ Return neighboring owned provinces """
+        return [h[0].owner for h in self.hex.neighbors if h[0].owner and h[0].owner.owner is self.owner]
 
     @property
     def is_border(self):

@@ -11,7 +11,7 @@ class MinerLogic(LogicBase):
         bread = self.get_good(Good.bread)
         tools = self.get_good(Good.tools)
 
-        if bread is None:
+        if bread is None or not self.can_work:
             # fine $2 for being idle
             self.charge_idle_money()
         elif tools is not None:

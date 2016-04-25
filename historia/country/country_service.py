@@ -37,6 +37,7 @@ def create_country(manager, world_map):
             new_pops = make_initial_pops(new_province)
             pops.extend(new_pops)
             new_province.add_pops(new_pops)
+            country.add_province(new_province)
             provinces.append(new_province)
             last_province = new_province
             find_more -= 1
