@@ -11,7 +11,7 @@ class Pop(object):
     A simulated unit of population
     """
 
-    def __init__(self, province, pop_type, population):
+    def __init__(self, province, pop_job, population):
         """
         Creates a new Pop.
         manager  (Historia)
@@ -28,7 +28,7 @@ class Pop(object):
         self.population = population
         self.population_yesterday = 0
 
-        self.pop_type = pop_type
+        self.pop_job = pop_job
 
         # ECONOMY
         self.money = 10
@@ -37,7 +37,7 @@ class Pop(object):
 
         # set inventory and ideal amounts
         self.inventory = Inventory(150)
-        for item in self.pop_type.start_inventory:
+        for item in self.pop_job.start_inventory:
             self.inventory.add(item['good'], item['amount'])
 
         self.update_ideal_inventory()
@@ -66,9 +66,13 @@ class Pop(object):
             # generate fake price belief
             self.price_belief[good] = PriceRange(avg_price * 0.5, avg_price * 1.5)
 
+    @property
+    def social_class(self):
+        return self.pop_job.social_class
+
     def update_ideal_inventory(self):
         "Update ideal inventory"
-        for item in self.pop_type.ideal_inventory:
+        for item in self.pop_job.ideal_inventory:
             self.inventory.set_ideal(item['good'], item['amount'])
 
     def change_population(self, trade_success):
@@ -80,9 +84,9 @@ class Pop(object):
             self.population -= round(self.population * 0.002)
 
 
-    def handle_bankruptcy(self, pop_type):
+    def handle_bankruptcy(self, pop_job):
         "Change job, create money out of thin air, update ideal inventory"
-        self.pop_type = pop_type
+        self.pop_job = pop_job
         self.bankrupt_times += 1
         self.money = 2
         self.update_ideal_inventory()
@@ -100,8 +104,8 @@ class Pop(object):
         return self.money - self.money_yesterday
 
     def perform_production(self):
-        "Depending on PopType, perform production by reducing inventory and producing another item"
-        logic = self.pop_type.logic(self)
+        "Depending on PopJob, perform production by reducing inventory and producing another item"
+        logic = self.pop_job.logic(self)
         logic.perform()
 
     def create_buy_order(self, good, limit):
@@ -173,7 +177,7 @@ class Pop(object):
             sell_amount = surplus
             order = self.create_sell_order(good, surplus)
             if order:
-                # print('{} sells {} {}'.format(self.pop_type.title, sell_amount, good.name))
+                # print('{} sells {} {}'.format(self.pop_job.title, sell_amount, good.name))
                 self.market.sell(order)
         else: # buy more
             shortage = self.inventory.shortage(good)
@@ -190,10 +194,10 @@ class Pop(object):
                 if limit > 0:
                     order = self.create_buy_order(good, limit)
                     if order:
-                        # print('{} buys {} {}'.format(self.pop_type.title, limit, good.name))
+                        # print('{} buys {} {}'.format(self.pop_job.title, limit, good.name))
                         self.market.buy(order)
             # else:
-            #     print("{} has no shortage of {} (has shortage: {})".format(self.pop_type.title, good.title, shortage))
+            #     print("{} has no shortage of {} (has shortage: {})".format(self.pop_job.title, good.title, shortage))
 
 
 
@@ -290,7 +294,7 @@ class Pop(object):
             belief.high = MIN_PRICE
 
     def __repr__(self):
-        return "<Pop: id={} type={}>".format(self.id, self.pop_type.title)
+        return "<Pop: id={} type={}>".format(self.id, self.pop_job.title)
 
     def __eq__(self, other):
         return self.id == other.id
@@ -303,7 +307,7 @@ class Pop(object):
 
     def export(self):
         return {
-            'pop_type': self.pop_type.ref(),
+            'pop_job': self.pop_job.ref(),
             'population': self.population,
             'population_yesterday': self.population_yesterday,
             'inventory': self.inventory.export(),

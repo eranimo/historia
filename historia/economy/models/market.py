@@ -5,18 +5,18 @@ from operator import itemgetter
 from historia.economy.models.order import Order
 from historia.economy.enums.order_type import OrderType
 from historia.economy.enums.resource import Good
-from historia.pops.enums.pop_type import PopType
+from historia.pops.enums.pop_job import PopJob
 
 from historia.economy.models.trade_history import TradeHistory, TradeHistoryLog
 
 GOOD_POPTYPE_MAP = {
-    Good.grain: PopType.farmer,
-    Good.iron_ore: PopType.miner,
-    Good.lumber: PopType.miller,
-    Good.timber: PopType.woodcutter,
-    Good.tools: PopType.blacksmith,
-    Good.iron: PopType.refiner,
-    Good.bread: PopType.baker
+    Good.grain: PopJob.farmer,
+    Good.iron_ore: PopJob.miner,
+    Good.lumber: PopJob.miller,
+    Good.timber: PopJob.woodcutter,
+    Good.tools: PopJob.blacksmith,
+    Good.iron: PopJob.refiner,
+    Good.bread: PopJob.baker
 }
 
 DEBUG = False
@@ -59,8 +59,8 @@ class Market:
             self.buy_orders[good] = []
             self.sell_orders[good] = []
 
-        for pop_type in PopType.all():
-            self.history.profit.register(pop_type)
+        for pop_job in PopJob.all():
+            self.history.profit.register(pop_job)
 
     def __repr__(self):
         return "<Market location={}>".format(self.location.id)
@@ -187,12 +187,12 @@ class Market:
         shuffle(pops)
 
 
-        # pops grouped by pop_type
+        # pops grouped by pop_job
         # create a key in TradehistoryLog with a list of each agent's profit this round
-        # grouped into their pop_type
-        for pop_type, pops in groupby(self.pops, lambda x: x.pop_type):
+        # grouped into their pop_job
+        for pop_job, pops in groupby(self.pops, lambda x: x.pop_job):
             all_profits = [p.profit for p in pops]
-            self.history.profit.extend(pop_type, all_profits)
+            self.history.profit.extend(pop_job, all_profits)
 
 
 
@@ -210,15 +210,15 @@ class Market:
         else:
             raise Exception('Must be a sell order')
 
-    def decide_new_pop_type(self, pop):
-        "Decide a new pop_type for a Pop when they go bankrupt"
-        best_poptype = self.most_profitable_pop_type()
+    def decide_new_pop_job(self, pop):
+        "Decide a new pop_job for a Pop when they go bankrupt"
+        best_poptype = self.most_profitable_pop_job()
         best_good = self.most_demanded_good(day_range=3)
         if best_good is not None:
             best_poptype = GOOD_POPTYPE_MAP[best_good]
 
         if DEBUG:
-            print("Pop {} ({}) is bankrupt. Switching to {}".format(pop.id, pop.pop_type.title, best_poptype.title))
+            print("Pop {} ({}) is bankrupt. Switching to {}".format(pop.id, pop.pop_job.title, best_poptype.title))
         pop.handle_bankruptcy(best_poptype)
 
     def most_demanded_good(self, minimum=1.5, day_range=10):
@@ -286,19 +286,19 @@ class Market:
 
         return best_good
 
-    def most_profitable_pop_type(self, day_range=10):
-        "Returns the most profitable pop_type in a given day range"
+    def most_profitable_pop_job(self, day_range=10):
+        "Returns the most profitable pop_job in a given day range"
         best = float('-inf')
-        best_pop_type = None
+        best_pop_job = None
 
-        for pop_type in PopType.all():
-            avg_profit = self.history.profit.average(pop_type, day_range=day_range)
+        for pop_job in PopJob.all():
+            avg_profit = self.history.profit.average(pop_job, day_range=day_range)
 
             if avg_profit > best:
-                best_pop_type = pop_type
+                best_pop_job = pop_job
                 best = avg_profit
 
-        return best_pop_type
+        return best_pop_job
 
     def avg_historial_price(self, good, day_range):
         "Gets the average historical price of a resource *range* days back"
@@ -316,12 +316,12 @@ class Market:
 
     def simulate(self):
         "Simulate a round of trading between the agents(Pops) at this Market"
-        pops_grouped = groupby(self.pops, lambda x: x.pop_type)
-        # print(', '.join(["{}: {}".format(pop_type.title, len(list(pops))) for pop_type, pops in pops_grouped]))
+        pops_grouped = groupby(self.pops, lambda x: x.pop_job)
+        # print(', '.join(["{}: {}".format(pop_job.title, len(list(pops))) for pop_job, pops in pops_grouped]))
 
 
         for pop in self.location.pops:
-            # print("\nPop {} ({}):".format(pop.pop_type.title, pop.id))
+            # print("\nPop {} ({}):".format(pop.pop_job.title, pop.id))
             # print("Inventory: {}".format(pop.inventory.display()))
 
             # perform each Pop's production
@@ -340,7 +340,7 @@ class Market:
             if pop.money < 0:
                 # change to the most profitable pop type
                 # unless there's an underserved market
-                self.decide_new_pop_type(pop)
+                self.decide_new_pop_job(pop)
 
 
 

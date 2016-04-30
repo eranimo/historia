@@ -3,14 +3,12 @@ import time
 import arrow
 import json
 
-from historia.time import TimelineProperty
 from historia.country import Country, Province, create_country
-from historia.pops import Pop, make_initial_pops, PopType
+from historia.pops import Pop, make_initial_pops, PopJob
 from historia.economy import make_RGOs, RGOType, Good
 from historia.map import WorldMap
-from historia.log import HistoryLogger
 from historia.enums import HexType, DictEnum
-from historia.utils import Store, Change, Timer
+from historia.utils import Store, Timer
 
 from termcolor import colored
 
@@ -27,8 +25,6 @@ echo = pp.pprint
 
 class JsonEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, Change):
-            return obj.export()
         if isinstance(obj, DictEnum):
             return obj.ref()
         return json.JSONEncoder.default(self, obj)
@@ -63,8 +59,6 @@ class Historia(object):
 
         # list of all languages that have ever existed
         self.languages = []
-
-        self.logger = HistoryLogger(self)
 
         self.stores = {
             'Country': Store(self.current_day),
@@ -168,7 +162,7 @@ class Historia(object):
                 'geoforms': self.map_data.get('geoforms'),
                 'hexes': self.map.export(),
                 'enums': {
-                    'PopType': PopType.export_all(),
+                    'PopJob': PopJob.export_all(),
                     'Good': Good.export_all()
                 },
                 'times': {
