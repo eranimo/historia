@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from historia.pops.enums.pop_type import PopType
+from historia.pops.enums.pop_job import PopJob
 from historia.economy import Good
 from historia.test.mocks import mock_manager, mock_map, make_mock_country, make_mock_pop
 
@@ -13,7 +13,7 @@ market = province.market
 
 class TestEconomy(TestCase):
     def test_money(self):
-        farmer = make_mock_pop(province, PopType.farmer)
+        farmer = make_mock_pop(province, PopJob.farmer)
         province.add_pops([farmer])
 
         farmer.money += 10
@@ -22,7 +22,7 @@ class TestEconomy(TestCase):
         self.assertEqual(farmer.money, 10)
 
     def test_idle_fee(self):
-        farmer = make_mock_pop(province, PopType.farmer)
+        farmer = make_mock_pop(province, PopJob.farmer)
         province.add_pops([farmer])
 
         farmer.inventory.set(Good.timber, 0)
@@ -31,7 +31,7 @@ class TestEconomy(TestCase):
         self.assertEqual(farmer.money, 8)
 
     def test_production(self):
-        farmer = make_mock_pop(province, PopType.farmer)
+        farmer = make_mock_pop(province, PopJob.farmer)
         province.add_pops([farmer])
 
         grain = farmer.inventory.get_amount(Good.grain)

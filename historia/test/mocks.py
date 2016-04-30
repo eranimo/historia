@@ -52,5 +52,5 @@ mock_manager = Historia(mock_map_data)
 def make_mock_country(manager, initial_hex):
     return Country(manager, initial_hex)
 
-def make_mock_pop(province, pop_type, population=10000):
-    return Pop(province, pop_type, population)
+def make_mock_pop(province, pop_job, population=10000):
+    return Pop(province, pop_job, population)

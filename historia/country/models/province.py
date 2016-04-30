@@ -1,7 +1,6 @@
 from historia.utils import unique_id
 from historia.country.enums import PrimaryDivisionTypes, GovernmentType, GovernmentStructure
 from historia.economy.models import Market
-from historia.log import LogAction
 from historia.namegen import random_word
 
 

@@ -1,7 +1,6 @@
 import random
 from historia.utils import unique_id, random_country_colors
 from historia.country.models.province import Province
-from historia.log import LogAction
 from historia.pops import make_initial_pops
 from historia.namegen import random_word
 from historia.world import give_hex_natural_resources
