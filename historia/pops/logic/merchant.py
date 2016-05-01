@@ -1,7 +1,7 @@
 from historia.pops.logic.logic_base import LogicBase
 from historia.economy.enums.resource import Good, NaturalResource
 
-DEBUG = True
+DEBUG = False
 
 class MerchantLogic(LogicBase):
 
@@ -37,6 +37,7 @@ class MerchantLogic(LogicBase):
                 if amount_trade_good is not None:
                     # we have goods, go home at sell them
                     self.pop.go_to_province(self.pop.home)
+                    # set the ideal to 0 so that we trade our goods
                     self.pop.inventory.set_ideal(self.pop.trade_good, 0)
                     if DEBUG: print("\tWe have goods, now we're going home")
                 else:
