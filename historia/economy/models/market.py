@@ -212,15 +212,18 @@ class Market:
 
     def decide_new_pop_job(self, pop):
         "Decide a new pop_job for a Pop when they go bankrupt"
-        include = JOBS_CLASS.get(pop.social_class)
-        best_poptype = self.most_profitable_pop_job(include=include)
+        # include = JOBS_CLASS.get(pop.social_class)
+        best_job = self.most_profitable_pop_job()
         best_good = self.most_demanded_good(day_range=3)
         if best_good is not None:
-            best_poptype = GOOD_POPJOB_MAP[best_good]
+            best_job = GOOD_POPJOB_MAP[best_good]
+
+        # if the best_job isn't valid at this location, and the best_good can be
+        # found in neighboring provinces, become a merchant and import it
 
         if DEBUG:
-            print("Pop {} ({}) is bankrupt. Switching to {}".format(pop.id, pop.pop_job.title, best_poptype.title))
-        pop.handle_bankruptcy(best_poptype)
+            print("Pop {} ({}) is bankrupt. Switching to {}".format(pop.id, pop.pop_job.title, best_job.title))
+        pop.handle_bankruptcy(best_job)
 
     def most_demanded_good(self, minimum=1.5, day_range=10):
         """
@@ -249,6 +252,28 @@ class Market:
 
         return best_good
 
+    def goods_demand(self, day_range=10):
+        """
+        Get the good with the lowest demand/supply ratio over time
+        day_range (int)     number of rounds to look back
+        """
+        demand_list = []
+        for good in Good.all():
+            sells = self.history.sell_orders.average(good, day_range=day_range)
+            buys = self.history.buy_orders.average(good, day_range=day_range)
+
+            if buys > 0 or sells > 0: # if this Good is traded in this Market
+
+                if sells == 0 and buys > 0:
+                    # make a fake supply of 0.5 for each unit to avoid
+                    # an infinite ratio of supply to demand
+                    sells = 0.5
+
+                ratio = buys / sells
+
+                demand_list.append((good, ratio, ))
+        return demand_list
+
     def most_cheap_good(self, day_range=10, exclude=None):
         """
         Returns the good that has the lowest average price over the given range of time
@@ -260,7 +285,7 @@ class Market:
 
         for good in Good.all():
             if exclude is None or good not in exclude:
-                price = self.history.prices.average(good, day_range=day_range)
+                price = self.mean_price(good)
 
                 if price < best_price:
                     best_price = price
@@ -279,7 +304,7 @@ class Market:
 
         for good in Good.all():
             if exclude is None or good not in exclude:
-                price = self.history.prices.average(good, day_range=day_range)
+                price = self.mean_price(good)
 
                 if price > best_price:
                     best_price = price

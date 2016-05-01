@@ -143,10 +143,10 @@ class PopJob(DictEnum):
         'inventory_size': 500,
         'social_class': PopClass.bourgeoisie,
         'start_inventory': [
-            {'good': Good.grain, 'amount': 1}
+            {'good': Good.grain, 'amount': 0}
         ],
         'ideal_inventory': [
-            {'good': Good.grain, 'amount': 2}
+            {'good': Good.grain, 'amount': 0}
         ]
     }
 
