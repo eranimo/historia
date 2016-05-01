@@ -3,7 +3,6 @@ from historia.pops import make_initial_pops
 from historia.country import Country, Province
 from historia.world import give_hex_natural_resources
 
-
 def find_good_unowned_hex(world_map):
     found = sorted(world_map.unowned_hexes, key=lambda h: h.favorability, reverse=True)
     if found:

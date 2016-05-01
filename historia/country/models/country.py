@@ -4,6 +4,8 @@ from historia.country.models.province import Province
 from historia.pops import make_initial_pops
 from historia.namegen import random_word
 from historia.world import give_hex_natural_resources
+from historia.economy import Good
+
 
 class Country(object):
     """
@@ -17,22 +19,15 @@ class Country(object):
 
         self.name = random_word()
 
-        # ancestor country (mother country)
-        # The country this country was formed out of
-        self.ancestor = ancestor
-
         # hexes this country controls
         # create a province
         capital = Province(self.manager, initial_hex, self, is_capital=True)
         self.provinces = [capital]
         self.capital = capital
 
-        # Vassal countries under this country
-        self.vassals = []
-        self.is_vassal = False
-
-        # tuple of Country, relation int
-        self.relations = []
+        # economic stuff
+        self.money = 100 # cash reserves
+        self.vat = {} # dictionary of goods to VAT rates
 
         map_color, border_color = random_country_colors()
         self.display = {
@@ -41,6 +36,33 @@ class Country(object):
         }
 
         self.group_provinces = []
+
+    # Country properties
+    @property
+    def markets(self):
+        return [p.market for p in self.provinces]
+
+    def determine_tax_policy(self):
+        """
+        Determine the optimal VAT tax policy
+        Goods that are in shortage have a small VAT
+        Goods that are in surplus have a large VAT
+        """
+        self.vat = {}
+        for m in self.markets:
+            demand_list = m.goods_demand_ratio(day_range=30)
+            for good, ratio in demand_list.items():
+                if ratio > 10: # large shortage
+                    self.vat[good] = 0.001
+                elif ratio > 2: # small shortage
+                    self.vat[good] = 0.01
+                elif ratio < 0.5: # small surplus
+                    self.vat[good] = 0.05
+                else: # large surplus
+                    self.vat[good] = 0.10
+        for good, total_vat in self.vat.items():
+            total_vat /= len(self.markets)
+
 
     def settle_hex(self, hex_inst):
         "Settles a new hex, creating a province and returning it"
@@ -134,5 +156,7 @@ class Country(object):
             'display': self.display,
             'name': self.name,
             'groups': self.group_provinces,
-            'provinces': [p.id for p in self.provinces]
+            'provinces': [p.id for p in self.provinces],
+            'money': self.money,
+            'vat_tax': [dict(good=good, tax=tax) for good, tax in self.vat.items()]
         }

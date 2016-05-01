@@ -130,6 +130,11 @@ class Market:
                 self.transfer_good(good, quantity_traded, sell_order.pop, buy_order.pop, clearing_price)
                 self.transfer_money(total_price, sell_order.pop, buy_order.pop)
 
+                # handle taxes
+                tax = total_price * self.location.owner.vat[good]
+                buy_order.pop.money -= tax
+                self.location.owner.money += tax
+
                 # update Pop price beliefs due to successful trade
                 buy_order.pop.update_price_model(good, OrderType.buy_order, True, clearing_price)
                 sell_order.pop.update_price_model(good, OrderType.sell_order, True, clearing_price)
@@ -252,12 +257,12 @@ class Market:
 
         return best_good
 
-    def goods_demand(self, day_range=10):
+    def goods_demand_ratio(self, day_range=10):
         """
         Get the good with the lowest demand/supply ratio over time
         day_range (int)     number of rounds to look back
         """
-        demand_list = []
+        demand_list = {}
         for good in Good.all():
             sells = self.history.sell_orders.average(good, day_range=day_range)
             buys = self.history.buy_orders.average(good, day_range=day_range)
@@ -271,7 +276,7 @@ class Market:
 
                 ratio = buys / sells
 
-                demand_list.append((good, ratio, ))
+                demand_list[good] = ratio
         return demand_list
 
     def most_cheap_good(self, day_range=10, exclude=None):

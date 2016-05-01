@@ -104,6 +104,11 @@ class Historia(object):
                 # perform production and trading
                 m.simulate()
 
+            # update VAT
+            for c in self.countries:
+                c.determine_tax_policy()
+
+
             self.next_day()
 
         for storeName, store in self.stores.items():
@@ -123,6 +128,7 @@ class Historia(object):
 
             for i in range(NUM_COUNTRIES):
                 country, provinces, pops = create_country(self, self.map)
+                country.determine_tax_policy()
                 self.stores['Country'].add(country)
                 self.stores['Province'].add(provinces)
                 self.stores['Pop'].add(pops)
