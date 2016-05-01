@@ -1,10 +1,11 @@
 import math
 from historia.utils import unique_id, position_in_range
 from historia.pops.models.inventory import Inventory
-from historia.economy.enums.resource import Good
+from historia.economy.enums.resource import Good, NaturalResource
 from historia.economy.enums.order_type import OrderType
 from historia.economy.models.price_range import PriceRange
 from historia.economy.models.order import Order
+from historia.pops.enums.pop_job import PopJob
 
 class Pop(object):
     """
@@ -22,7 +23,8 @@ class Pop(object):
         job      (Job)
         """
         self.bankrupt_times = 0
-        self.province = province
+        self.home = province
+        self.location = province
         self.id = unique_id('po')
 
         self.population = population
@@ -36,7 +38,7 @@ class Pop(object):
         self.bankrupt = False
 
         # set inventory and ideal amounts
-        self.inventory = Inventory(150)
+        self.inventory = Inventory(pop_job.inventory_size)
         for item in self.pop_job.start_inventory:
             self.inventory.add(item['good'], item['amount'])
 
@@ -54,7 +56,6 @@ class Pop(object):
         self.successful_trades = 0
         self.failed_trades = 0
 
-
         # make some fake initial data
         for good in Good.all():
             avg_price = self.market.avg_historial_price(good, 15)
@@ -66,10 +67,70 @@ class Pop(object):
             # generate fake price belief
             self.price_belief[good] = PriceRange(avg_price * 0.5, avg_price * 1.5)
 
+        # Merchant logic
+        self.trade_location = None # the province this Pop is traveling to
+        self.trade_good = None # what good we're trading in right now
+        self.trade_amount = 0 # amount of trade_good we should be trading
+        self.trading_days = 0 # number of days waiting to trade
+
+    # Generic Pop properties
     @property
     def social_class(self):
         return self.pop_job.social_class
 
+    @property
+    def market(self):
+        "Get the market instance"
+        return self.location.market
+
+    @property
+    def profit(self):
+        "Determine today's profit"
+        return self.money - self.money_yesterday
+
+    @property
+    def is_away(self):
+        "Is this Pop away from it's home?"
+        return self.home is not self.location
+
+    # Merchant specific logic
+    def go_to_province(self, province):
+        "Moves the Pop to another Province"
+        self.location = province
+
+    def decide_trade_plan(self):
+        """
+        Decide what good to trade in and how much.
+        Look for the most in demand good, or the most expensive good at the home Province
+        Find a province near home province where its the cheapest and there's inventory
+        """
+        # find most in demand good at home
+        best_good = self.home.market.most_demanded_good()
+        if best_good is None:
+            best_good == self.home.market.most_costly_good(exclude=[Good.fish])
+        amount = 3
+
+        # if we already had a trade good, refresh ideal inventory
+        if self.trade_good:
+            self.update_ideal_inventory()
+
+        self.inventory.set_ideal(best_good, amount)
+        self.trade_good = best_good
+        self.trade_amount = amount
+
+        # find all neighboring markets
+        neighboring_markets = [p.market for p in self.location.owned_neighbors]
+        neighboring_markets = [m for m in neighboring_markets if m.supply_for(self.trade_good) > self.trade_amount]
+        if len(neighboring_markets) > 0: # we have neighbors
+            # sort them by the price of the trade_good in increasing order
+            neighboring_markets.sort(key=lambda m: m.mean_price(self.trade_good))
+            self.trade_location = neighboring_markets[0].location
+        else:
+            # we're inactive because we can't find a province around us
+            self.trade_location = None
+
+
+    # Generic economic logic
     def update_ideal_inventory(self):
         "Update ideal inventory"
         for item in self.pop_job.ideal_inventory:
@@ -86,25 +147,14 @@ class Pop(object):
 
     def handle_bankruptcy(self, pop_job):
         "Change job, create money out of thin air, update ideal inventory"
+        # print("{} pop went backrupt, is now {}".format(self.pop_job.title, pop_job.title))
         self.pop_job = pop_job
         self.bankrupt_times += 1
         self.money = 2
         self.update_ideal_inventory()
 
-
-    # Economic methods
-    @property
-    def market(self):
-        "Get the market instance"
-        return self.province.market
-
-    @property
-    def profit(self):
-        "Determine profit"
-        return self.money - self.money_yesterday
-
-    def perform_production(self):
-        "Depending on PopJob, perform production by reducing inventory and producing another item"
+    def perform_logic(self):
+        "Depending on PopJob, perform logic (including production)"
         logic = self.pop_job.logic(self)
         logic.perform()
 
@@ -221,7 +271,7 @@ class Pop(object):
             # add this trade to the observed trading range
             self.observed_trading_range[good].append(clearing_price)
 
-        public_mean_price = self.market.avg_historial_price(good, 1)
+        public_mean_price = self.market.mean_price(good)
         belief = self.price_belief[good]
         mean = belief.mean()
         wobble = 0.05 # the degree which the Pop should bid outside the belief
@@ -293,6 +343,7 @@ class Pop(object):
         elif belief.high < MIN_PRICE:
             belief.high = MIN_PRICE
 
+    # Python utility methods
     def __repr__(self):
         return "<Pop: id={} type={}>".format(self.id, self.pop_job.title)
 
@@ -306,7 +357,7 @@ class Pop(object):
         return hash(self.__key__())
 
     def export(self):
-        return {
+        model = {
             'pop_job': self.pop_job.ref(),
             'population': self.population,
             'population_yesterday': self.population_yesterday,
@@ -317,3 +368,14 @@ class Pop(object):
             'failed_trades': self.failed_trades,
             'bankrupt_times': self.bankrupt_times,
         }
+        if self.pop_job is PopJob.merchant:
+            location_id = None
+            if self.trade_location:
+                location_id = self.trade_location.id
+            model.update({
+                'location': self.location.id,
+                'trade_location': location_id,
+                'trade_good': self.trade_good,
+                'trade_amount': self.trade_amount
+            })
+        return model

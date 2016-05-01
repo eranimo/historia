@@ -5,11 +5,11 @@ from operator import itemgetter
 from historia.economy.models.order import Order
 from historia.economy.enums.order_type import OrderType
 from historia.economy.enums.resource import Good
-from historia.pops.enums.pop_job import PopJob
+from historia.pops.enums.pop_job import PopJob, JOBS_CLASS
 
 from historia.economy.models.trade_history import TradeHistory, TradeHistoryLog
 
-GOOD_POPTYPE_MAP = {
+GOOD_POPJOB_MAP = {
     Good.grain: PopJob.farmer,
     Good.iron_ore: PopJob.miner,
     Good.lumber: PopJob.miller,
@@ -28,13 +28,13 @@ class Market:
 
     Parameters:
     manager Historia
-    location SecondaryDivision
+    location Province
 
     Properties:
     buy_orders list[Order]
     sell_orders list[Order]
 
-    order_history
+    history TradeHistory
     """
 
     def __init__(self, manager, location):
@@ -212,10 +212,11 @@ class Market:
 
     def decide_new_pop_job(self, pop):
         "Decide a new pop_job for a Pop when they go bankrupt"
-        best_poptype = self.most_profitable_pop_job()
+        include = JOBS_CLASS.get(pop.social_class)
+        best_poptype = self.most_profitable_pop_job(include=include)
         best_good = self.most_demanded_good(day_range=3)
         if best_good is not None:
-            best_poptype = GOOD_POPTYPE_MAP[best_good]
+            best_poptype = GOOD_POPJOB_MAP[best_good]
 
         if DEBUG:
             print("Pop {} ({}) is bankrupt. Switching to {}".format(pop.id, pop.pop_job.title, best_poptype.title))
@@ -233,7 +234,7 @@ class Market:
             sells = self.history.sell_orders.average(good, day_range=day_range)
             buys = self.history.buy_orders.average(good, day_range=day_range)
 
-            if buys > 0 and sells > 0: # if this Good is traded in this Market
+            if buys > 0 or sells > 0: # if this Good is traded in this Market
 
                 if sells == 0 and buys > 0:
                     # make a fake supply of 0.5 for each unit to avoid
@@ -248,7 +249,7 @@ class Market:
 
         return best_good
 
-    def most_cheap_good(self, day_range, exclude=None):
+    def most_cheap_good(self, day_range=10, exclude=None):
         """
         Returns the good that has the lowest average price over the given range of time
         range (int)           how many days to look back
@@ -258,7 +259,7 @@ class Market:
         best_price = float('inf')
 
         for good in Good.all():
-            if exclude is None or good in exclude:
+            if exclude is None or good not in exclude:
                 price = self.history.prices.average(good, day_range=day_range)
 
                 if price < best_price:
@@ -267,7 +268,7 @@ class Market:
 
         return best_good
 
-    def most_costly_good(self, day_range, exclude=None):
+    def most_costly_good(self, day_range=10, exclude=None):
         """
         Returns the good that has the highest average price over the given range of time
         range (int)           how many days to look back
@@ -277,7 +278,7 @@ class Market:
         best_price = float('inf')
 
         for good in Good.all():
-            if exclude is None or good in exclude:
+            if exclude is None or good not in exclude:
                 price = self.history.prices.average(good, day_range=day_range)
 
                 if price > best_price:
@@ -286,12 +287,15 @@ class Market:
 
         return best_good
 
-    def most_profitable_pop_job(self, day_range=10):
+    def most_profitable_pop_job(self, include=None, day_range=10):
         "Returns the most profitable pop_job in a given day range"
         best = float('-inf')
         best_pop_job = None
 
-        for pop_job in PopJob.all():
+        if include is None:
+            include = PopJob.all()
+
+        for pop_job in include:
             avg_profit = self.history.profit.average(pop_job, day_range=day_range)
 
             if avg_profit > best:
@@ -303,6 +307,18 @@ class Market:
     def avg_historial_price(self, good, day_range):
         "Gets the average historical price of a resource *range* days back"
         return self.history.prices.average(good, day_range=day_range)
+
+    def mean_price(self, good):
+        "Get the mean price of a Good at this Market before today"
+        return self.avg_historial_price(good, 1)
+
+    def demand_for(self, good):
+        "Get the number of buy orders for a good before today"
+        return self.history.buy_orders.average(good, day_range=1)
+
+    def supply_for(self, good):
+        "Get the number of sell orders for a good before today"
+        return self.history.sell_orders.average(good, day_range=1)
 
     def transfer_good(self, good, amount, seller, buyer, unit_price):
         "Transfers Goods from a seller Pop to a buyer Pop"
@@ -326,7 +342,7 @@ class Market:
 
             # perform each Pop's production
             pop.money_yesterday = pop.money
-            pop.perform_production()
+            pop.perform_logic()
 
             # for each good, check to see if the Pop needs to buy or sell
             for good in Good.all():
@@ -349,5 +365,8 @@ class Market:
         "Export the Market data as it currently exists"
         orders_for = lambda l, g: [o.export() for o in l[g]]
         return {
-            'history': [{'good': good.ref(), 'data': self.history.export(good, 1)} for good in Good.all()]
+            'history': [{'good': good.ref(), 'data': self.history.export(good, 1)} for good in Good.all()],
+            'most_demanded_good': self.most_demanded_good(),
+            'most_profitable_pop_job': self.most_profitable_pop_job(),
+            'most_expensive_good': self.most_costly_good(exclude=[Good.fish])
         }

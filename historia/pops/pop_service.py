@@ -18,5 +18,6 @@ def make_initial_pops(province):
     p4 = make_random_pop(province, PopJob.blacksmith)
     p5 = make_random_pop(province, PopJob.refiner)
     p7 = make_random_pop(province, PopJob.baker)
+    p7 = make_random_pop(province, PopJob.merchant, count=3, min_p=10, max_p=500)
     pops.extend(sum([p1, p2, p3, p4, p5, p6, p7], []))
     return pops

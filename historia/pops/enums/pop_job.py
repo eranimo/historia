@@ -16,6 +16,7 @@ class PopJob(DictEnum):
         'title': 'Farmer',
         'color': 'green',
         'logic': logic.farmer,
+        'inventory_size': 150,
         'social_class': PopClass.proletariat,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -34,6 +35,7 @@ class PopJob(DictEnum):
         'title': 'Miner',
         'color': 'gray',
         'logic': logic.miner,
+        'inventory_size': 150,
         'social_class': PopClass.proletariat,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -50,6 +52,7 @@ class PopJob(DictEnum):
         'title': 'Miller',
         'color': 'yellow',
         'logic': logic.miller,
+        'inventory_size': 150,
         'social_class': PopClass.proletariat,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -68,6 +71,7 @@ class PopJob(DictEnum):
         'title': 'Woodcutter',
         'color': 'brown',
         'logic': logic.woodcutter,
+        'inventory_size': 150,
         'social_class': PopClass.proletariat,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -84,7 +88,8 @@ class PopJob(DictEnum):
         'title': 'Blacksmith',
         'color': 'black',
         'logic': logic.blacksmith,
-        'social_class': PopClass.proletariat,
+        'inventory_size': 150,
+        'social_class': PopClass.bourgeoisie,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
             {'good': Good.iron, 'amount': 1},
@@ -102,6 +107,7 @@ class PopJob(DictEnum):
         'title': 'Refiner',
         'color': 'red',
         'logic': logic.refiner,
+        'inventory_size': 150,
         'social_class': PopClass.proletariat,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -120,7 +126,8 @@ class PopJob(DictEnum):
         'title': 'Baker',
         'color': 'orange',
         'logic': logic.baker,
-        'social_class': PopClass.proletariat,
+        'inventory_size': 150,
+        'social_class': PopClass.bourgeoisie,
         'start_inventory': [
             {'good': Good.grain, 'amount': 1}
         ],
@@ -128,3 +135,33 @@ class PopJob(DictEnum):
             {'good': Good.grain, 'amount': 5}
         ]
     }
+
+    merchant = {
+        'title': 'Merchant',
+        'color': 'purple',
+        'logic': logic.merchant,
+        'inventory_size': 500,
+        'social_class': PopClass.bourgeoisie,
+        'start_inventory': [
+            {'good': Good.grain, 'amount': 1}
+        ],
+        'ideal_inventory': [
+            {'good': Good.grain, 'amount': 2}
+        ]
+    }
+
+JOBS_CLASS = {
+    PopClass.aristocracy: [],
+    PopClass.bourgeoisie: [
+        PopJob.blacksmith,
+        PopJob.baker,
+        PopJob.merchant
+    ],
+    PopClass.proletariat: [
+        PopJob.farmer,
+        PopJob.miner,
+        PopJob.miller,
+        PopJob.woodcutter,
+        PopJob.refiner
+    ]
+}
