@@ -1,24 +1,28 @@
 from historia.pops.logic.logic_base import LogicBase
 from historia.economy.enums.resource import Good, NaturalResource
 
-DEBUG = False
+DEBUG = True
 
 class MerchantLogic(LogicBase):
 
-    @property
-    def can_work(self):
-        return True
-
     def perform(self):
-        if DEBUG: print("Merchant: {} at {} (home: {})".format(self.pop.id, self.pop.location.name, self.pop.home.name))
-        bread = self.get_good(Good.bread)
-        tools = self.get_good(Good.tools)
-
-        if not self.pop.is_away or self.pop.trade_good is None or self.pop.money < 1:
-            # find a new good to trade
+        # If we're back home, find a new good to trade
+        if not self.pop.is_away:
             self.pop.decide_trade_plan()
 
-        if DEBUG: print("\t{} @ {}".format(self.pop.trade_good, self.pop.trade_location))
+        if DEBUG: print("""Merchant {}
+        \tLocation: {}
+        \tHome: {}
+        \tTrade Target: {}
+        \tTrade Good: {}
+        \tAmount: {}""".format(self.pop.id,
+                                          self.pop.location.name,
+                                          self.pop.home.name,
+                                          self.pop.trade_location,
+                                          self.pop.trade_good,
+                                          self.pop.trade_amount))
+
+        amount_trade_good = self.get_good(self.pop.trade_good)
 
         # if we have a trade location
         if self.pop.trade_location:
@@ -30,18 +34,19 @@ class MerchantLogic(LogicBase):
                 # we're at trade location, allow trading
                 if DEBUG: print("\tReached target province {}".format(self.pop.trade_location.name))
 
-                # if we waited a few days and we can't get trade_good,
-                # look for a new trade_good
-                if self.pop.trading_days > 3:
-                    self.pop.decide_trade_plan()
-                    self.pop.trading_days = 0
+                if amount_trade_good is not None:
+                    # we have goods, go home at sell them
+                    self.pop.go_to_province(self.pop.home)
+                    self.pop.inventory.set_ideal(self.pop.trade_good, 0)
+                    if DEBUG: print("\tWe have goods, now we're going home")
                 else:
-                    self.pop.trading_days += 1
+                    if DEBUG: print("\tNow we're trading!")
 
         else:
             if DEBUG: print("\tIdle since we can't trade")
-            self.charge_idle_money()
+            # self.charge_idle_money()
+            self.pop.decide_trade_plan()
 
-        self.consume(Good.bread, 1)
+        # self.consume(Good.bread, 1)
 
         if DEBUG: print("\n")

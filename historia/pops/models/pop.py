@@ -104,30 +104,70 @@ class Pop(object):
         Look for the most in demand good, or the most expensive good at the home Province
         Find a province near home province where its the cheapest and there's inventory
         """
-        # find most in demand good at home
-        best_good = self.home.market.most_demanded_good()
-        if best_good is None:
-            best_good == self.home.market.most_costly_good(exclude=[Good.fish])
-        amount = 3
+        self.trade_amount = 5
+        most_demanded_goods = self.home.market.goods_demand(day_range=1)
+        most_demanded_goods.sort(key=lambda i: i[1], reverse=True)
 
         # if we already had a trade good, refresh ideal inventory
         if self.trade_good:
             self.update_ideal_inventory()
 
-        self.inventory.set_ideal(best_good, amount)
-        self.trade_good = best_good
-        self.trade_amount = amount
+        print("Finding a Good to trade:")
 
-        # find all neighboring markets
-        neighboring_markets = [p.market for p in self.location.owned_neighbors]
-        neighboring_markets = [m for m in neighboring_markets if m.supply_for(self.trade_good) > self.trade_amount]
-        if len(neighboring_markets) > 0: # we have neighbors
-            # sort them by the price of the trade_good in increasing order
-            neighboring_markets.sort(key=lambda m: m.mean_price(self.trade_good))
-            self.trade_location = neighboring_markets[0].location
-        else:
-            # we're inactive because we can't find a province around us
-            self.trade_location = None
+        for good, demand in most_demanded_goods:
+            # find nearby provinces where this has inventory and the price is lower
+            price_at_home = self.home.market.mean_price(good)
+            print("Good: {}, Demand: {}, Price: ${}".format(good.title, demand, price_at_home))
+            neighboring_markets = [p.market for p in self.location.owned_neighbors]
+            neighboring_markets = [m for m in neighboring_markets if m.supply_for(good) > self.trade_amount]
+            neighboring_markets.sort(key=lambda m: m.supply_for(good), reverse=True)
+
+            if len(neighboring_markets) > 0:
+                # we found places where this good is cheaper and in inventory
+                target = neighboring_markets[0].location
+                price_at_target = target.market.mean_price(good)
+
+                # only trade with prices where we can make money
+                if price_at_home > price_at_target:
+                    self.inventory.set_ideal(good, self.trade_amount)
+                    self.trade_location = target
+                    print("\tTarget {} {} @ ${} (price at home: ${})".format(
+                        self.trade_location.name,
+                        self.trade_location.market.supply_for(good),
+                        self.trade_location.market.mean_price(good),
+                        price_at_home)
+                    )
+                    self.trade_good = good
+                    return
+                else:
+                    print("\tPrice is higher at target (home: ${} target: ${})".format(price_at_home, price_at_target))
+            else:
+                print("\tNo markets selling {} found".format(good))
+
+        # # find most in demand good at home
+        # best_good = self.home.market.most_demanded_good()
+        #
+        # amount = 3
+        #
+        #
+        # # if we already had a trade good, refresh ideal inventory
+        # if self.trade_good:
+        #     self.update_ideal_inventory()
+        #
+        # self.inventory.set_ideal(best_good, amount)
+        # self.trade_good = best_good
+        # self.trade_amount = amount
+        #
+        # # find all neighboring markets
+        # neighboring_markets = [p.market for p in self.location.owned_neighbors]
+        # neighboring_markets = [m for m in neighboring_markets if m.supply_for(self.trade_good) > self.trade_amount]
+        # if len(neighboring_markets) > 0: # we have neighbors
+        #     # sort them by the price of the trade_good in increasing order
+        #     neighboring_markets.sort(key=lambda m: m.mean_price(self.trade_good))
+        #     self.trade_location = neighboring_markets[0].location
+        # else:
+        #     # we're inactive because we can't find a province around us
+        #     self.trade_location = None
 
 
     # Generic economic logic
