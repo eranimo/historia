@@ -27,7 +27,7 @@ class TestEconomy(TestCase):
 
         farmer.inventory.set(Good.timber, 0)
         self.assertEqual(farmer.money, 10)
-        farmer.perform_production()
+        farmer.perform_logic()
         self.assertEqual(farmer.money, 8)
 
     def test_production(self):
@@ -39,7 +39,7 @@ class TestEconomy(TestCase):
         bread = farmer.inventory.get_amount(Good.bread)
         timber = farmer.inventory.get_amount(Good.timber)
 
-        farmer.perform_production()
+        farmer.perform_logic()
 
         self.assertEqual(farmer.inventory.get_amount(Good.grain), grain + 4)
         self.assertEqual(farmer.inventory.get_amount(Good.bread), bread - 1)
@@ -54,7 +54,7 @@ class TestEconomy(TestCase):
         timber = farmer.inventory.get_amount(Good.timber)
 
 
-        farmer.perform_production()
+        farmer.perform_logic()
 
         self.assertEqual(farmer.inventory.get_amount(Good.grain), grain + 4)
         self.assertEqual(farmer.inventory.get_amount(Good.bread), bread - 1)

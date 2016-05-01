@@ -1,4 +1,4 @@
-from statistics import mean
+from statistics import mean, StatisticsError
 
 
 class TradeHistoryLog:
@@ -26,7 +26,10 @@ class TradeHistoryLog:
     def average(self, key, day_range=15):
         "Gets the average amount of the given Good's record in the last `range` days"
         if key in self.record:
-            return mean(self.record[key][-day_range:])
+            try:
+                return mean(self.record[key][-day_range:])
+            except StatisticsError:
+                return 0
         return 0
 
 
@@ -34,11 +37,12 @@ def lround(l, p):
     return [round(i, 2) for i in l]
 
 class TradeHistory:
-    prices = TradeHistoryLog('prices')
-    buy_orders = TradeHistoryLog('buy_orders')
-    sell_orders = TradeHistoryLog('sell_orders')
-    trades = TradeHistoryLog('trades')
-    profit = TradeHistoryLog('profit')
+    def __init__(self):
+        self.prices = TradeHistoryLog('prices')
+        self.buy_orders = TradeHistoryLog('buy_orders')
+        self.sell_orders = TradeHistoryLog('sell_orders')
+        self.trades = TradeHistoryLog('trades')
+        self.profit = TradeHistoryLog('profit')
 
     def register(self, good):
         self.prices.register(good)

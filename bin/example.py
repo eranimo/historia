@@ -9,7 +9,7 @@ if __name__ == "__main__":
 
     with open(file_path) as fobj:
         gen = Historia(json.load(fobj), debug=False, params={
-            'run_days': 100
+            'run_days': 30
         })
         gen.start()
         gen.export(output_path)

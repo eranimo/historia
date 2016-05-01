@@ -5,11 +5,7 @@ from historia.namegen import random_word
 
 
 class Province(object):
-    """
-    Subdivision of government.
-    Provinces have:
-        - population
-    """
+    "Subdivision of Country, one-to-one with Hex"
 
     def __init__(self, manager, location, owner, is_capital=False):
         super(self.__class__, self).__init__()
@@ -40,26 +36,31 @@ class Province(object):
 
     @property
     def neighbors(self):
-        """ Return neighboring provinces """
+        "Return neighboring provinces"
         return [h[0].owner for h in self.hex.neighbors if h[0].owner]
 
     @property
-    def owned_neighbors(self):
-        """ Return neighboring owned provinces """
+    def domestic_neighbors(self):
+        "Return neighboring provinces owned by this country"
         return [h[0].owner for h in self.hex.neighbors if h[0].owner and h[0].owner.owner is self.owner]
 
     @property
+    def owned_neighbors(self):
+        "Return neighboring owned provinces owned by everyone"
+        return [h[0].owner for h in self.hex.neighbors if h[0].owner is not None]
+
+    @property
     def is_border(self):
-        """ Returns True if any county neighbors are owner land hexes """
+        "Returns True if any county neighbors are owner land hexes"
         return any([h[0].owner for h in self.hex.neighbors if h[0].is_land])
 
     @property
     def is_frontier(self):
-        """ Returns True if any hex neighbors are unowner land hexes """
+        "Returns True if any hex neighbors are unowner land hexes"
         return any([not h[0].owner for h in self.hex.neighbors if h[0].is_land])
 
     def get_frontier_hexes(self):
-        """ Gets the unowner land hexes neighboring this hex """
+        "Gets the unowner land hexes neighboring this hex"
         return [h[0] for h in self.hex.neighbors if h[0].is_land and h[0].owner is None]
 
     @property

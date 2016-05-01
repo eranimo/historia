@@ -85,7 +85,7 @@ class Country(object):
         #
         # # compile list of province groups
         # while len(provinces) > 0:
-        #     neighbors = [p for p in current_province.owned_neighbors if p in provinces]
+        #     neighbors = [p for p in current_province.domestic_neighbors if p in provinces]
         #     if len(neighbors) > 0:
         #         provinces.remove(current_province)
         #         current_province = neighbors[0]

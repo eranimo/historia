@@ -7,7 +7,7 @@ class WoodcutterLogic(LogicBase):
 
     @property
     def can_work(self):
-        has_timber = self.pop.province.hex.has_natural_resource(NaturalResource.trees)
+        has_timber = self.pop.location.hex.has_natural_resource(NaturalResource.trees)
         return has_timber
 
     def perform(self):

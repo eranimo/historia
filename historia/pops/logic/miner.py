@@ -5,7 +5,7 @@ class MinerLogic(LogicBase):
 
     @property
     def can_work(self):
-        return self.pop.province.hex.has_natural_resource(NaturalResource.iron)
+        return self.pop.location.hex.has_natural_resource(NaturalResource.iron)
 
     def perform(self):
         bread = self.get_good(Good.bread)

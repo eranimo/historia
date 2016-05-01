@@ -11,7 +11,7 @@ class RGO(object):
         self.owner = owner # the Pop that owns this RGO
         self.employee = employee # the Pop that works here
 
-    def perform_production(self):
+    def perform_logic(self):
         """
         produce the raw goods
         give them to the owners inventory
