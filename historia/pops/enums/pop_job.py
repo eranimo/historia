@@ -17,6 +17,7 @@ class PopJob(DictEnum):
         'color': 'green',
         'logic': logic.farmer,
         'inventory_size': 150,
+        'start_money': 10,
         'social_class': PopClass.proletariat,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -36,6 +37,7 @@ class PopJob(DictEnum):
         'color': 'gray',
         'logic': logic.miner,
         'inventory_size': 150,
+        'start_money': 10,
         'social_class': PopClass.proletariat,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -53,6 +55,7 @@ class PopJob(DictEnum):
         'color': 'yellow',
         'logic': logic.miller,
         'inventory_size': 150,
+        'start_money': 10,
         'social_class': PopClass.proletariat,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -72,6 +75,7 @@ class PopJob(DictEnum):
         'color': 'brown',
         'logic': logic.woodcutter,
         'inventory_size': 150,
+        'start_money': 10,
         'social_class': PopClass.proletariat,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -89,6 +93,7 @@ class PopJob(DictEnum):
         'color': 'black',
         'logic': logic.blacksmith,
         'inventory_size': 150,
+        'start_money': 10,
         'social_class': PopClass.bourgeoisie,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -108,6 +113,7 @@ class PopJob(DictEnum):
         'color': 'red',
         'logic': logic.refiner,
         'inventory_size': 150,
+        'start_money': 10,
         'social_class': PopClass.proletariat,
         'start_inventory': [
             {'good': Good.bread, 'amount': 1},
@@ -127,6 +133,7 @@ class PopJob(DictEnum):
         'color': 'orange',
         'logic': logic.baker,
         'inventory_size': 150,
+        'start_money': 10,
         'social_class': PopClass.bourgeoisie,
         'start_inventory': [
             {'good': Good.grain, 'amount': 1}
@@ -141,12 +148,13 @@ class PopJob(DictEnum):
         'color': 'purple',
         'logic': logic.merchant,
         'inventory_size': 500,
+        'start_money': 30,
         'social_class': PopClass.bourgeoisie,
         'start_inventory': [
-            {'good': Good.grain, 'amount': 0}
+            {'good': Good.bread, 'amount': 1}
         ],
         'ideal_inventory': [
-            {'good': Good.grain, 'amount': 0}
+            {'good': Good.bread, 'amount': 3}
         ]
     }
 

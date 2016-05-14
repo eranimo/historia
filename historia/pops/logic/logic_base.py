@@ -22,9 +22,8 @@ class LogicBase:
             return None
         return i
 
-    def charge_idle_money(self):
+    def charge_idle_money(self, charge=2):
         "Change a Pop's money"
-        charge = 2
         # print("{} charged {} for being idle".format(self.pop.pop_job.title, charge))
         self.pop.money -= charge
 

@@ -7,6 +7,8 @@ from historia.economy.models.price_range import PriceRange
 from historia.economy.models.order import Order
 from historia.pops.enums.pop_job import PopJob
 
+DEBUG = True
+
 class Pop(object):
     """
     A simulated unit of population
@@ -33,14 +35,13 @@ class Pop(object):
         self.pop_job = pop_job
 
         # ECONOMY
-        self.money = 10
+        self.money = pop_job.start_money
         self.money_yesterday = 0
         self.bankrupt = False
 
         # set inventory and ideal amounts
         self.inventory = Inventory(pop_job.inventory_size)
-        for item in self.pop_job.start_inventory:
-            self.inventory.add(item['good'], item['amount'])
+        self.give_start_inventory()
 
         self.update_ideal_inventory()
 
@@ -89,6 +90,18 @@ class Pop(object):
         return self.money - self.money_yesterday
 
     @property
+    def total_trades(self):
+        "Total number of trades this Pop participated in"
+        return self.successful_trades + self.failed_trades
+
+    @property
+    def trade_success(self):
+        "Percent of trades that were successful"
+        if self.total_trades == 0:
+            return 0
+        return (self.successful_trades / self.total_trades) * 100
+
+    @property
     def is_away(self):
         "Is this Pop away from it's home?"
         return self.home is not self.location
@@ -112,53 +125,67 @@ class Pop(object):
         if self.trade_good:
             self.update_ideal_inventory()
 
-        # print("Finding a Good to trade:")
+        if DEBUG: print("Finding a Good to trade:")
 
         for good, demand in most_demanded_goods:
-            # find nearby provinces where this has inventory and the price is lower
-            price_at_home = self.home.market.mean_price(good)
-            # print("Good: {}, Demand: {}, Price: ${}".format(good.title, demand, price_at_home))
-            neighboring_markets = [p.market for p in self.location.owned_neighbors]
-            neighboring_markets = [m for m in neighboring_markets if m.supply_for(good) > self.trade_amount]
-            neighboring_markets.sort(key=lambda m: m.supply_for(good), reverse=True)
+            if demand > 0:
+                # find nearby provinces where this has inventory and the price is lower
+                price_at_home = self.home.market.mean_price(good)
+                if DEBUG: print("Good: {}, Demand: {}, Price: ${}".format(good.title, demand, price_at_home))
+                neighboring_markets = [p.market for p in self.location.owned_neighbors]
+                neighboring_markets = [m for m in neighboring_markets if m.supply_for(good) > self.trade_amount]
+                neighboring_markets.sort(key=lambda m: m.supply_for(good), reverse=True)
 
-            if len(neighboring_markets) > 0:
-                # we found places where this good is cheaper and in inventory
-                target = neighboring_markets[0].location
-                price_at_target = target.market.mean_price(good)
+                if len(neighboring_markets) > 0:
+                    # we found places where this good is cheaper and in inventory
+                    target = neighboring_markets[0].location
+                    price_at_target = target.market.mean_price(good)
 
-                # only trade with prices where we can make money
-                if price_at_home > price_at_target:
-                    self.inventory.set_ideal(good, self.trade_amount)
-                    self.trade_location = target
-                    # print("\tTarget {} {} @ ${} (price at home: ${})".format(
-                    #     self.trade_location.name,
-                    #     self.trade_location.market.supply_for(good),
-                    #     self.trade_location.market.mean_price(good),
-                    #     price_at_home)
-                    # )
-                    self.trade_good = good
-                    return
-                # else:
-                #     print("\tPrice is higher at target (home: ${} target: ${})".format(price_at_home, price_at_target))
-            # else:
-            #     print("\tNo markets selling {} found".format(good))
+                    # only trade with prices where we can make money
+                    if price_at_home > price_at_target:
+                        offset = 0
+                        if good is Good.bread:
+                            offset = 1
+                        self.inventory.set_ideal(good, self.trade_amount + offset)
+                        self.trade_location = target
+                        if DEBUG:
+                            print("\tTarget: {}, Supply: {}, Price: ${}, Price at home: ${}".format(
+                                self.trade_location.name,
+                                self.trade_location.market.supply_for(good),
+                                self.trade_location.market.mean_price(good),
+                                price_at_home)
+                            )
+                        self.trade_good = good
+                        return
+                    else:
+                        if DEBUG: print("\tPrice is higher at target (home: ${} target: ${})".format(price_at_home, price_at_target))
+                else:
+                    if DEBUG: print("\tNo markets selling {} found".format(good))
 
 
     # Generic economic logic
     def update_ideal_inventory(self):
         "Update ideal inventory"
+        # reset so that the Pop can sell the inventory it doesn't need
+        for good in Good.all():
+            self.inventory.set_ideal(good, 0)
+
+        # update ideal inventory for new Job
         for item in self.pop_job.ideal_inventory:
             self.inventory.set_ideal(item['good'], item['amount'])
+
+    def give_start_inventory(self):
+        "Give the Pop the inventory it needs to do its job"
+        for item in self.pop_job.start_inventory:
+            self.inventory.add(item['good'], item['amount'])
 
     def change_population(self, trade_success):
         "Change the population based off the trade"
         self.population_yesterday = self.population
         if trade_success:
-            self.population += round(self.population * 0.002)
+            self.population += round(self.population * 0.01)
         else:
             self.population -= round(self.population * 0.002)
-
 
     def handle_bankruptcy(self, pop_job):
         "Change job, create money out of thin air, update ideal inventory"
@@ -167,6 +194,7 @@ class Pop(object):
         self.bankrupt_times += 1
         self.money = 2
         self.update_ideal_inventory()
+        self.give_start_inventory()
 
     def perform_logic(self):
         "Depending on PopJob, perform logic (including production)"
