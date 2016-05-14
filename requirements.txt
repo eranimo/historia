@@ -8,3 +8,7 @@ statistics
 colour
 ujson
 tqdm
+python-socketio
+flask
+eventlet
+argparse
