@@ -35,6 +35,10 @@ class Province(object):
         self.pops.extend(pops)
 
     @property
+    def population(self):
+        return sum([p.population for p in self.pops])
+
+    @property
     def neighbors(self):
         "Return neighboring provinces"
         return [h[0].owner for h in self.hex.neighbors if h[0].owner]
@@ -79,5 +83,6 @@ class Province(object):
             'owner': self.owner.id,
             'is_capital': self.is_capital,
             'market': self.market.export(),
+            'population': self.population,
             'pops': [p.id for p in self.pops]
         }

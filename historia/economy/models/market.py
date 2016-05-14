@@ -136,7 +136,7 @@ class Market:
                 self.location.owner.money += tax
 
                 # update Pop price beliefs due to successful trade
-                buy_order.pop.update_price_model(good, OrderType.buy_order, True, clearing_price)
+                buy_order.pop.update_price_model(good, OrderType.buy_order, True, clearing_price + tax)
                 sell_order.pop.update_price_model(good, OrderType.sell_order, True, clearing_price)
 
                 # update pop metrics
@@ -217,8 +217,8 @@ class Market:
 
     def decide_new_pop_job(self, pop):
         "Decide a new pop_job for a Pop when they go bankrupt"
-        # include = JOBS_CLASS.get(pop.social_class)
-        best_job = self.most_profitable_pop_job()
+        include = JOBS_CLASS.get(pop.social_class)
+        best_job = self.most_profitable_pop_job(include=include)
         best_good = self.most_demanded_good(day_range=3)
         if best_good is not None:
             best_job = GOOD_POPJOB_MAP[best_good]
@@ -226,8 +226,7 @@ class Market:
         # if the best_job isn't valid at this location, and the best_good can be
         # found in neighboring provinces, become a merchant and import it
 
-        if DEBUG:
-            print("Pop {} ({}) is bankrupt. Switching to {}".format(pop.id, pop.pop_job.title, best_job.title))
+        if DEBUG: print("Pop {} ({}) is bankrupt. Switching to {}".format(pop.id, pop.pop_job.title, best_job.title))
         pop.handle_bankruptcy(best_job)
 
     def most_demanded_good(self, minimum=1.5, day_range=10):

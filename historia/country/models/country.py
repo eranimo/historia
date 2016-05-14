@@ -158,5 +158,6 @@ class Country(object):
             'groups': self.group_provinces,
             'provinces': [p.id for p in self.provinces],
             'money': self.money,
+            'total_population': sum([p.population for p in self.provinces]),
             'vat_tax': [dict(good=good, tax=tax) for good, tax in self.vat.items()]
         }

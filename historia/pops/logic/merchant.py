@@ -1,7 +1,7 @@
 from historia.pops.logic.logic_base import LogicBase
 from historia.economy.enums.resource import Good, NaturalResource
 
-DEBUG = False
+DEBUG = True
 
 class MerchantLogic(LogicBase):
 
@@ -45,9 +45,15 @@ class MerchantLogic(LogicBase):
 
         else:
             if DEBUG: print("\tIdle since we can't trade")
-            # self.charge_idle_money()
             self.pop.decide_trade_plan()
+            self.charge_idle_money(charge=0.1)
 
-        # self.consume(Good.bread, 1)
+        if self.pop.trade_success < 15:
+            if DEBUG: print("\tPenalizing Merchant because he sucks")
+            self.charge_idle_money(charge=1)
+
+        # if we don't have bread, charge us
+        if self.get_good(Good.bread) is not None:
+            self.consume(Good.bread, 1)
 
         if DEBUG: print("\n")

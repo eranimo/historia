@@ -5,7 +5,7 @@ class FarmerLogic(LogicBase):
 
     @property
     def can_work(self):
-        return self.pop.location.hex.biome.can_farm
+        return True # self.pop.location.hex.biome.can_farm
 
     def compute_yield(self, has_tools):
         base = 2
