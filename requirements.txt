@@ -6,7 +6,6 @@ autopep8
 colorama
 statistics
 colour
-ujson
 tqdm
 python-socketio
 flask

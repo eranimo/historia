@@ -4,13 +4,11 @@ cffi==0.8.6
 colorama==0.3.7
 colour==0.1.2
 decorator==4.0.9
-dictdiffer==1.0
 docutils==0.12
 enum34==1.1.2
 gitdb==0.6.4
 GitPython==0.3.6
 greenlet==0.4.0
--e git+git@gitlab.com:eranimo/historia.git@632faca39a4840975b4c3e8d48a2864a7c088954#egg=historia
 ipython==4.1.2
 ipython-genutils==0.1.0
 nomine==0.0.2
