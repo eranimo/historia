@@ -1,6 +1,13 @@
 from historia.enums import HexEdge, HexType
 from historia.world.biome import Biome
 from historia.utils import unique_id
+from colour import Color
+
+def list_to_color(color_list):
+    return Color(rgb=tuple([i / 256 for i in color_list])).hex
+
+def list_to_string(l):
+    return ''.join([str(i) for i in l])
 
 class Hex:
     """
@@ -198,9 +205,107 @@ class Hex:
             'y': self.y
         }
 
-    def export(self):
-        "Export Hex data as dict"
+    @property
+    def detail(self):
+
         data = self.map_data
-        data['neighbors'] = {n[1].name: {'x': n[0].x, 'y': n[0].y } for n in self.neighbors}
-        data['natural_resources'] = [r.name for r in self.natural_resources]
+        edge_data = data.get('edges')
+        color_data = data.get('colors')
+        return {
+            'x': self.x,
+            'y': self.y,
+            'type': data.get('type'),
+            'biome': self.biome.ref(),
+            'altitude': self.altitude,
+            'owned': self.owned,
+            'edges': {
+                "east": {
+                    'river': int(edge_data.get('east').get('is_river')),
+                    'coast': int(edge_data.get('east').get('is_coast'))
+                },
+                "south_east": {
+                    'river': int(edge_data.get('south_east').get('is_river')),
+                    'coast': int(edge_data.get('south_east').get('is_coast'))
+                },
+                "south_west": {
+                    'river': int(edge_data.get('south_west').get('is_river')),
+                    'coast': int(edge_data.get('south_west').get('is_coast'))
+                },
+                "west": {
+                    'river': int(edge_data.get('west').get('is_river')),
+                    'coast': int(edge_data.get('west').get('is_coast'))
+                },
+                "north_west": {
+                    'river': int(edge_data.get('north_west').get('is_river')),
+                    'coast': int(edge_data.get('north_west').get('is_coast'))
+                },
+                "north_east": {
+                    'river': int(edge_data.get('north_east').get('is_river')),
+                    'coast': int(edge_data.get('north_east').get('is_coast'))
+                }
+            },
+            'colors': {
+                'biome': list_to_color(color_data.get('biome')),
+                'rivers': list_to_color(color_data.get('rivers')),
+                'satellite': list_to_color(color_data.get('satellite')),
+                'temperature': list_to_color(color_data.get('temperature')),
+                'terrain': list_to_color(color_data.get('terrain')),
+            },
+            'neighbors': {
+                HexEdge.east.name: self.hex_east.coords,
+                HexEdge.south_east.name: self.hex_south_east.coords,
+                HexEdge.south_west.name: self.hex_south_west.coords,
+                HexEdge.west.name: self.hex_west.coords,
+                HexEdge.north_west.name: self.hex_north_west.coords,
+                HexEdge.north_east.name: self.hex_north_east.coords,
+            }
+        }
+
+    @property
+    def reference(self):
+
+        data = self.map_data
+        # edge_data = data.get('edges')
+        # color_data = data.get('colors')
         return data
+        # {
+        #     'x': self.x,
+        #     'y': self.y,
+        #     'type': data.get('type'),
+        #     'biome': self.biome.ref(),
+        #     'altitude': self.altitude,
+        #     'owned': self.owned,
+        #     'edges': {
+        #         "east": {
+        #             'river': int(edge_data.get('east').get('is_river')),
+        #             'coast': int(edge_data.get('east').get('is_coast'))
+        #         },
+        #         "south_east": {
+        #             'river': int(edge_data.get('south_east').get('is_river')),
+        #             'coast': int(edge_data.get('south_east').get('is_coast'))
+        #         },
+        #         "south_west": {
+        #             'river': int(edge_data.get('south_west').get('is_river')),
+        #             'coast': int(edge_data.get('south_west').get('is_coast'))
+        #         },
+        #         "west": {
+        #             'river': int(edge_data.get('west').get('is_river')),
+        #             'coast': int(edge_data.get('west').get('is_coast'))
+        #         },
+        #         "north_west": {
+        #             'river': int(edge_data.get('north_west').get('is_river')),
+        #             'coast': int(edge_data.get('north_west').get('is_coast'))
+        #         },
+        #         "north_east": {
+        #             'river': int(edge_data.get('north_east').get('is_river')),
+        #             'coast': int(edge_data.get('north_east').get('is_coast'))
+        #         }
+        #     },
+        #     'colors': {
+        #         'biome': list_to_color(color_data.get('biome')),
+        #         'rivers': list_to_color(color_data.get('rivers')),
+        #         'satellite': list_to_color(color_data.get('satellite')),
+        #         'temperature': list_to_color(color_data.get('temperature')),
+        #         'terrain': list_to_color(color_data.get('terrain')),
+        #     }
+        # }

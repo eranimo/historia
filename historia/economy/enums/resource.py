@@ -29,11 +29,26 @@ class Good(DictEnum):
     # charcoal = { 'title': 'Charcoal' }
 
 
-class NaturalResource(Enum):
-    iron = {'good': Good.iron}
-    fish = {'good': Good.fish}
-    trees = {'good': Good.timber}
-#
+class NaturalResource(DictEnum):
+    __exports__ = ['title', 'id']
+
+    iron = {
+        'title': 'iron',
+        'id': 1,
+        'good': Good.iron
+    }
+    fish = {
+        'title': 'fish',
+        'id': 2,
+        'good': Good.fish
+    }
+    trees = {
+        'title': 'trees',
+        'id': 3,
+        'good': Good.timber
+    }
+
+
 class PlantedResources(Enum):
     pass
 #     grains = {'good': Good.grain}
