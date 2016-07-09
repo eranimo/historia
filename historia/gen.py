@@ -6,6 +6,7 @@ from historia.economy import make_RGOs, RGOType, Good
 from historia.map import WorldMap
 from historia.enums import HexType, DictEnum
 from historia.utils import Store, Timer
+from historia.world.biome import Biome
 
 from termcolor import colored
 from pprint import PrettyPrinter
@@ -34,7 +35,7 @@ class Historia(object):
         self.map_data = map_data
 
         # set the current_day
-        self.start_date = arrow.get(1, 1, 1),
+        self.start_date = arrow.get(1, 1, 1)
         self.current_day = self.start_date
 
         # list of all countries that have ever existed
@@ -50,21 +51,24 @@ class Historia(object):
             self.populate()
 
     @classmethod
-    def from_data(cls, debug):
-        "Starts Historia from data from Hexgen located in the home directory"
-        file_path = os.path.join(os.path.expanduser('~'), 'hexgen.json')
-        with open(file_path) as fobj:
-            return cls(json.load(fobj), debug)
+    def from_data(cls, data, debug):
+        "Starts Historia from data"
+        return cls(data, debug)
 
     def next_day(self):
         "Advance another day, updating the change stores"
         self.simulate_day()
         self.current_day = self.current_day.replace(days=+1)
 
+    def get_day(self):
+        "Get today"
         return {
-            'Country': {c.id: c.export() for c in self.countries},
-            'Province': {p.id: p.export() for c in self.countries for p in c.provinces},
-            'Pop': {p.id: p.export() for c in self.countries for p in c.pops}
+            'day': self.current_day.format("YYYY-MM-DD"),
+            'data': {
+                'Country': {c.id: c.export() for c in self.countries},
+                'Province': {p.id: p.export() for c in self.countries for p in c.provinces},
+                'Pop': {p.id: p.export() for c in self.countries for p in c.pops}
+            }
         }
 
     def simulate_day(self):
@@ -105,14 +109,19 @@ class Historia(object):
                 country.determine_tax_policy()
                 self.countries.append(country)
 
-    def world_data(self, output_file):
+    @property
+    def enums(self):
+        return {
+            'PopJob': PopJob.export_all(),
+            'Biome': Biome.export_all(),
+            'Good': Good.export_all()
+        }
+
+    @property
+    def world_data(self):
         "World data needed for Explorer"
         return {
             'details': self.map_data.get('details'),
-            'geoforms': self.map_data.get('geoforms'),
-            'hexes': self.map.export(),
-            'enums': {
-                'PopJob': PopJob.export_all(),
-                'Good': Good.export_all()
-            }
+            'enums': self.enums,
+            'hexes': [[i.reference for i in row] for row in self.map.hex_map]
         }
