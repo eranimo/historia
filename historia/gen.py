@@ -123,5 +123,6 @@ class Historia(object):
         return {
             'details': self.map_data.get('details'),
             'enums': self.enums,
+            'geoforms': self.map_data.get('geoforms'),
             'hexes': [[i.reference for i in row] for row in self.map.hex_map]
         }
