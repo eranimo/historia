@@ -8,7 +8,7 @@ statistics
 colour
 tqdm
 python-socketio
-flask
+flask==0.10.1
 flask-compress
 eventlet
 argparse

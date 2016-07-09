@@ -6,3 +6,5 @@ build/
 historia.egg-info
 bin/export.json
 **/**/__pycache__/
+pypy-4.0.1-osx64/
+pypy-4.0.1-osx64.tar.bz2
