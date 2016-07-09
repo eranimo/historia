@@ -7,7 +7,7 @@ from historia.economy.models.price_range import PriceRange
 from historia.economy.models.order import Order
 from historia.pops.enums.pop_job import PopJob
 
-DEBUG = True
+DEBUG = False
 
 class Pop(object):
     """

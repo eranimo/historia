@@ -19,7 +19,9 @@ def start_server(port=8888, debug=False):
     with open(file_path) as fobj:
         hexgen_data = json.load(fobj)
 
+    global world
     world = None
+    days = []
 
     @app.after_request
     def apply_caching(response):
@@ -28,10 +30,24 @@ def start_server(port=8888, debug=False):
 
     @app.route('/start')
     def start():
-        "Initialize the world"
+        """
+        Starts a new History
+        """
         global world
-        world = Historia.from_data(hexgen_data, debug)
-        return json.dumps(world.world_data, cls=JsonEncoder), 200
+        global days
+
+        if world is None:
+            world = Historia.from_data(hexgen_data, debug)
+            days = [world.get_day()]
+            return json.dumps({
+                'world_data': world.world_data,
+                'days': days
+            }, cls=JsonEncoder), 200
+
+        return json.dumps({
+            'world_data': world.world_data,
+            'days': days
+        }, cls=JsonEncoder), 200
 
     @app.route('/hex/<int:x>/<int:y>')
     def get_hex(x, y):
@@ -52,17 +68,22 @@ def start_server(port=8888, debug=False):
     def next_day():
         "Get the next day"
         global world
-        data = world.get_day()
+        global days
         world.next_day()
+        data = world.get_day()
+        days.append(data)
+        print(data['day'])
         return json.dumps(data, cls=JsonEncoder), 200
 
     @app.route('/refresh')
     def refresh():
-        "Delete all data so that start can be called again"
-        global world
         world = Historia.from_data(hexgen_data, debug)
-        world_data = world.world_data()
-        return json.dumps(world_data, cls=JsonEncoder), 200
+        return json.dumps({
+            'world_data': world.world_data,
+            'days': [
+                world.get_day()
+            ]
+        }, cls=JsonEncoder), 200
 
 
     app.run(debug=debug)

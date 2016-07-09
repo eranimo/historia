@@ -1,7 +1,7 @@
 from historia.pops.logic.logic_base import LogicBase
 from historia.economy.enums.resource import Good, NaturalResource
 
-DEBUG = True
+DEBUG = False
 
 class MerchantLogic(LogicBase):
 
