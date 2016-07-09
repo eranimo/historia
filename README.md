@@ -7,9 +7,9 @@ Exports a JSON file that is readable by [Explorer](https://github.com/eranimo/ex
 
 ## Installation
 1. Download the repository
-1. Install [PyPy3 2.4.0](http://pypy.org/download.html)
-1. (optional) Create a [virtualenv](https://virtualenv.pypa.io/en/latest/) with this version of PyPy. Activate the virutalenv.
-1. Run `pip install -r requirements-r.txt`. This will install all the Python dependencies for the project.
-1. Run `python setup.py develop` to install 
-1. Run [Hexgen](https://github.com/eranimo/hexgen) and place the JSON file it produces in your home directory at ~/hexgen.json.
-1. Run `python bin/example.py` to run Historia and export a JSON file to your home directory this file is viewable in [Explorer](https://github.com/eranimo/explorer).
+2. Install [PyPy3 2.4.0](http://pypy.org/download.html)
+3. (optional) Create a [virtualenv](https://virtualenv.pypa.io/en/latest/) with this version of PyPy. Activate the virutalenv.
+4. Run `pip install -r requirements-r.txt`. This will install all the Python dependencies for the project.
+5. Run `python setup.py develop` to install. The `historia` command should now be availale.
+6. Run [Hexgen](https://github.com/eranimo/hexgen) and place the JSON file it produces in your home directory at ~/hexgen.json.
+7. Run `historia` to start the Historia server. This server is used by  [Explorer](https://github.com/eranimo/explorer).
