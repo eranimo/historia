@@ -15,9 +15,12 @@ class WorldMap:
 
         self.hexes = []
         hexes = map_data.get('hexes')
+        self.hex_map = [[None for y in range(self.size)] for x in range(self.size)]
         for x, row in enumerate(hexes):
             for y, h in enumerate(row):
-                self.hexes.append(Hex(self, h))
+                hex_inst = Hex(self, h)
+                self.hex_map[x][y] = hex_inst
+                self.hexes.append(hex_inst)
 
     @property
     def unowned_hexes(self):
@@ -36,8 +39,5 @@ class WorldMap:
                 found = random.choice(self.hexes)
         return found
 
-    def export(self):
-        hexes = [[None for y in range(self.size)] for x in range(self.size)]
-        for h in self.hexes:
-            hexes[h.x][h.y] = h.export()
-        return hexes
+    def get_map_mode(self, map_mode):
+        return [[h.reference(map_mode) for h in row] for row in self.hex_map]
