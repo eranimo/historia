@@ -60,6 +60,11 @@ class Historia(object):
         self.simulate_day()
         self.current_day = self.current_day.replace(days=+1)
 
+    def jump_forward(self, months=1):
+        for i in range(months):
+            self.simulate_day()
+        self.current_day = self.current_day.replace(months=months)
+
     def get_day(self):
         "Get today"
         return {

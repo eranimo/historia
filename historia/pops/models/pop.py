@@ -189,7 +189,7 @@ class Pop(object):
 
     def handle_bankruptcy(self, pop_job):
         "Change job, create money out of thin air, update ideal inventory"
-        # print("{} pop went backrupt, is now {}".format(self.pop_job.title, pop_job.title))
+        # TODO: stop creating money out of thin air
         self.pop_job = pop_job
         self.bankrupt_times += 1
         self.money = 2

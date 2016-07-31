@@ -386,6 +386,10 @@ class Market:
                 # change to the most profitable pop type
                 # unless there's an underserved market
                 self.decide_new_pop_job(pop)
+            else:
+                # TODO: If money is declining recently, and about to be bankrupt,
+                # then switch to a new job
+                pass
 
 
 
