@@ -79,9 +79,9 @@ class Historia(object):
     def simulate_day(self):
         "Simulates a single day"
         markets = [p.market for c in self.countries for p in c.provinces]
-        date = '{}'.format(self.current_day.format('dddd MMMM D, YYYY'))
+        # date = '{}'.format(self.current_day.format('dddd MMMM D, YYYY'))
         # if self.current_day.datetime.day == 1:
-        print('→ {}:'.format(colored(date, 'blue', attrs=['bold', 'underline'])))
+        # print('→ {}:'.format(colored(date, 'blue', attrs=['bold', 'underline'])))
 
         # get every market in the world
 
@@ -91,7 +91,8 @@ class Historia(object):
 
         for m in markets:
             # perform production and trading
-            m.simulate()
+            with Timer("simulate") as t:
+                m.simulate()
 
         # update VAT
         for c in self.countries:

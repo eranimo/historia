@@ -6,7 +6,7 @@ from historia.economy.models.order import Order
 from historia.economy.enums.order_type import OrderType
 from historia.economy.enums.resource import Good
 from historia.pops.enums.pop_job import PopJob, JOBS_CLASS
-
+from historia.utils.timer import Timer
 from historia.economy.models.trade_history import TradeHistory, TradeHistoryLog
 
 GOOD_POPJOB_MAP = {
@@ -364,32 +364,34 @@ class Market:
         pops_grouped = groupby(self.pops, lambda x: x.pop_job)
         # print(', '.join(["{}: {}".format(pop_job.title, len(list(pops))) for pop_job, pops in pops_grouped]))
 
+        with Timer('\tfor all pop generate orders'):
+            for pop in self.location.pops:
+                # print("\nPop {} ({}):".format(pop.pop_job.title, pop.id))
+                # print("Inventory: {}".format(pop.inventory.display()))
 
-        for pop in self.location.pops:
-            # print("\nPop {} ({}):".format(pop.pop_job.title, pop.id))
-            # print("Inventory: {}".format(pop.inventory.display()))
+                # perform each Pop's production
+                pop.money_yesterday = pop.money
+                pop.perform_logic()
 
-            # perform each Pop's production
-            pop.money_yesterday = pop.money
-            pop.perform_logic()
+                # for each good, check to see if the Pop needs to buy or sell
+                for good in Good.all():
+                    pop.generate_orders(good)
 
-            # for each good, check to see if the Pop needs to buy or sell
+        with Timer("\tresolve orders"):
             for good in Good.all():
-                pop.generate_orders(good)
-
-        for good in Good.all():
-            self.resolve_orders(good)
+                self.resolve_orders(good)
 
         # resolve all offers for each Good
-        for pop in self.location.pops:
-            if pop.money < 0:
-                # change to the most profitable pop type
-                # unless there's an underserved market
-                self.decide_new_pop_job(pop)
-            else:
-                # TODO: If money is declining recently, and about to be bankrupt,
-                # then switch to a new job
-                pass
+        with Timer("\tdecide new pop job"):
+            for pop in self.location.pops:
+                if pop.money < 0:
+                    # change to the most profitable pop type
+                    # unless there's an underserved market
+                    self.decide_new_pop_job(pop)
+                else:
+                    # TODO: If money is declining recently, and about to be bankrupt,
+                    # then switch to a new job
+                    pass
 
 
 

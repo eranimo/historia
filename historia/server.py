@@ -72,7 +72,6 @@ def start_server(port=8888, debug=False):
         world.next_day()
         data = world.get_day()
         days.append(data)
-        print(data['day'])
         return json.dumps(data, cls=JsonEncoder), 200
 
     @app.route('/refresh')
